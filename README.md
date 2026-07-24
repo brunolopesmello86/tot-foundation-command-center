@@ -120,14 +120,29 @@ A single shared passcode gates the app. It is hashed with SHA-256 and stored in 
 `settings` table on first migrate; the browser holds an HMAC session token in
 `localStorage`. Every `/api` route except `/api/health` and `/api/auth/login` requires it.
 
-**To change the passcode**, update `APP_PASSCODE` and clear the stored hash:
+### Changing the passcode
 
-```sql
-DELETE FROM settings WHERE key = 'passcode_hash';
+1. Edit `APP_PASSCODE` in `.env`
+2. Run:
+
+```bash
+npm run passcode
 ```
 
-Then run `npm run migrate` again. Existing sessions are invalidated automatically,
-because the token is derived from the passcode hash.
+That's it — no SQL. The command overwrites the stored hash and prints a masked
+confirmation. Everyone currently signed in is logged out automatically, because the
+session token is derived from the passcode hash.
+
+If the app is deployed, update Vercel too so the two stay in sync:
+
+```bash
+vercel env rm  APP_PASSCODE production
+vercel env add APP_PASSCODE production
+vercel --prod
+```
+
+> `npm run migrate` only sets the passcode when none exists yet, so it will never
+> silently overwrite one. `npm run passcode` is the deliberate way to change it.
 
 ---
 

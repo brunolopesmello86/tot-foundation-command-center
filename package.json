@@ -7,7 +7,8 @@
     "start": "node server/index.js",
     "dev": "node server/index.js",
     "migrate": "node server/migrate.js",
-    "seed": "node server/migrate.js --seed"
+    "seed": "node server/migrate.js --seed",
+    "passcode": "node server/passcode.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
