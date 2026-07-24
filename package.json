@@ -1,0 +1,23 @@
+{
+  "name": "tot-foundation-command-center",
+  "version": "1.0.0",
+  "description": "Management UI for the T&OT Foundation — Digital Strategy Business Unit, NTT DATA USA. Strategy scoreboard, commercial pipeline, people & capacity, assets & certification engine.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "migrate": "node server/migrate.js",
+    "seed": "node server/migrate.js --seed"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "pg": "^8.13.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T&amp;OT Foundation · Command Center</title>
+<meta name="description" content="Management UI for the T&amp;OT Foundation — Digital Strategy Business Unit, NTT DATA USA. Strategy scoreboard, commercial pipeline, people &amp; capacity, assets &amp; certification engine.">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<!-- ── Passcode gate ─────────────────────────────────────────────────────── -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="eyebrow">Digital Strategy Business Unit</div>
+    <h1>T&amp;OT <span>Command Center</span></h1>
+    <p>Strategy cycle 2026–2028</p>
+    <form id="gate-form">
+      <label class="field">
+        <span class="sr-only">Passcode</span>
+        <input type="password" id="gate-input" placeholder="Passcode" autocomplete="current-password" required>
+      </label>
+      <button type="submit" class="btn primary" id="gate-submit">Enter</button>
+    </form>
+    <div class="gate-error" id="gate-error" role="alert"></div>
+  </div>
+</div>
+
+<!-- ── Application shell ─────────────────────────────────────────────────── -->
+<div class="shell" id="shell" hidden>
+
+  <header class="masthead">
+    <div class="titles">
+      <div class="eyebrow">Digital Strategy Business Unit · NTT DATA USA</div>
+      <h1>T&amp;OT Foundation <span>Command Center</span></h1>
+      <div class="sub">Playing to Win · strategy cycle 2026–2028 · drive sustainable growth</div>
+    </div>
+    <div class="actions">
+      <button class="btn sm" id="btn-refresh" title="Reload all data from the database">Refresh</button>
+      <button class="btn sm" id="btn-print" title="Print or save the current view as PDF">Print</button>
+      <button class="btn sm danger" id="btn-logout">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-view="strategy"   aria-selected="true">01 · Strategy</button>
+    <button role="tab" data-view="pipeline"   aria-selected="false">02 · Pipeline</button>
+    <button role="tab" data-view="people"     aria-selected="false">03 · People</button>
+    <button role="tab" data-view="assets"     aria-selected="false">04 · Assets &amp; Certifications</button>
+    <button role="tab" data-view="financials" aria-selected="false">05 · Financials</button>
+  </nav>
+
+  <div id="loading" class="loading">LOADING WORKSPACE…</div>
+
+  <main id="views" hidden>
+    <section class="view" id="view-strategy"   role="tabpanel"></section>
+    <section class="view" id="view-pipeline"   role="tabpanel" hidden></section>
+    <section class="view" id="view-people"     role="tabpanel" hidden></section>
+    <section class="view" id="view-assets"     role="tabpanel" hidden></section>
+    <section class="view" id="view-financials" role="tabpanel" hidden></section>
+  </main>
+
+</div>
+
+<!-- ── Record editor ─────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h2 id="modal-title">Edit</h2>
+    <form id="modal-form">
+      <div class="fields" id="modal-fields"></div>
+      <footer>
+        <button type="button" class="btn" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn primary" id="modal-save">Save</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<div id="toast" hidden role="status"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
