@@ -25,6 +25,17 @@ CREATE TABLE IF NOT EXISTS pillars (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- The three drivers — the engines of growth. Previously hardcoded in the
+-- frontend, which meant they could not be changed without a deploy.
+CREATE TABLE IF NOT EXISTS drivers (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        TEXT NOT NULL UNIQUE,
+    description TEXT,
+    sort_order  INTEGER NOT NULL DEFAULT 0,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- The strategy scoreboard — metrics that matter.
 CREATE TABLE IF NOT EXISTS metrics (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),

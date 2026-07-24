@@ -41,42 +41,65 @@
   </div>
 </div>
 
-<!-- ── Application shell ─────────────────────────────────────────────────── -->
-<div class="shell" id="shell" hidden>
+<!-- ── Application ───────────────────────────────────────────────────────── -->
+<div class="app" id="app" hidden>
 
-  <header class="masthead">
-    <div class="titles">
-      <div class="eyebrow">Digital Strategy Business Unit · NTT DATA USA</div>
-      <h1>T&amp;OT Foundation <span>Command Center</span></h1>
-      <div class="sub">Playing to Win · strategy cycle 2026–2028 · drive sustainable growth</div>
+  <div class="nav-scrim" id="nav-scrim"></div>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">T&amp;OT Foundation</div>
+      <div class="brand-sub">Command Center</div>
+      <div class="brand-tags">
+        <span class="brand-tag">NTT DATA</span>
+        <span class="brand-tag">Digital Strategy</span>
+      </div>
     </div>
-    <div class="actions">
-      <button class="btn sm" id="btn-theme" title="Switch between light and dark" aria-pressed="false">
-        <span class="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Dark</span>
-      </button>
-      <button class="btn sm" id="btn-refresh" title="Reload all data from the database">Refresh</button>
-      <button class="btn sm" id="btn-print" title="Print or save the current view as PDF">Print</button>
-      <button class="btn sm danger" id="btn-logout">Sign out</button>
+
+    <nav class="nav-sections" id="nav-sections" aria-label="Sections"></nav>
+
+    <div class="sidebar-foot">
+      <div class="nav-footer" id="nav-footer">Loading…</div>
     </div>
-  </header>
+  </aside>
 
-  <nav class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-view="strategy"   aria-selected="true">01 · Strategy</button>
-    <button role="tab" data-view="pipeline"   aria-selected="false">02 · Pipeline</button>
-    <button role="tab" data-view="people"     aria-selected="false">03 · People</button>
-    <button role="tab" data-view="assets"     aria-selected="false">04 · Assets &amp; Certifications</button>
-    <button role="tab" data-view="financials" aria-selected="false">05 · Financials</button>
-  </nav>
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4h13M1.5 8h13M1.5 12h13"/></svg>
+        </button>
+        <span class="crumb" id="crumb">Strategy</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn sm" id="btn-theme" title="Switch between light and dark" aria-pressed="false">
+          <span class="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Dark</span>
+        </button>
+        <button class="btn sm" id="btn-refresh" title="Reload all data from the database">Refresh</button>
+        <button class="btn sm" id="btn-print" title="Print or save the current view as PDF">Print</button>
+        <button class="btn sm danger" id="btn-logout">Sign out</button>
+      </div>
+    </header>
 
-  <div id="loading" class="loading">LOADING WORKSPACE…</div>
+    <div class="page">
+      <div class="page-head">
+        <h1 id="page-title">Strategy</h1>
+        <p id="page-sub">Playing to Win — one goal, three drivers, four pillars</p>
+      </div>
 
-  <main id="views" hidden>
-    <section class="view" id="view-strategy"   role="tabpanel"></section>
-    <section class="view" id="view-pipeline"   role="tabpanel" hidden></section>
-    <section class="view" id="view-people"     role="tabpanel" hidden></section>
-    <section class="view" id="view-assets"     role="tabpanel" hidden></section>
-    <section class="view" id="view-financials" role="tabpanel" hidden></section>
-  </main>
+      <div id="loading" class="loading">LOADING WORKSPACE…</div>
+
+      <main id="views" hidden>
+        <section class="view" id="view-strategy"   role="region" aria-label="Strategy"></section>
+        <section class="view" id="view-pipeline"   role="region" aria-label="Pipeline" hidden></section>
+        <section class="view" id="view-people"     role="region" aria-label="People" hidden></section>
+        <section class="view" id="view-assets"     role="region" aria-label="Assets and certifications" hidden></section>
+        <section class="view" id="view-financials" role="region" aria-label="Financials" hidden></section>
+      </main>
+    </div>
+  </div>
 
 </div>
 

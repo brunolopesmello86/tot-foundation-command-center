@@ -9,6 +9,12 @@
 
 const db = require('./db');
 
+const DRIVERS = [
+  ['AI Co-pilot', 'Embed AI copilots into every offering so delivery is faster, smarter and visibly differentiated.', 1],
+  ['Assets / IPs', 'Productize our know-how into reusable assets that scale revenue without scaling headcount.', 2],
+  ['Digital Strategy as Spearhead', 'Lead with digital strategy to open new technology business across the wider NTT portfolio.', 3],
+];
+
 const PILLARS = [
   [1, 'Diversification of Sectors', 'Banking · Industry · Utilities — US home market, expanding via LATAM collaboration.', 'Digital Strategy as Spearhead'],
   [2, 'AI as Key Driver', 'AI as the core of every digital strategy we design and sell.', 'AI Co-pilot'],
@@ -110,6 +116,15 @@ async function isEmpty(table) {
 }
 
 async function seed() {
+  // ── Drivers (stable identity via `name`) ──
+  for (const [name, description, sort] of DRIVERS) {
+    await db.query(
+      `INSERT INTO drivers (name, description, sort_order)
+       VALUES ($1, $2, $3) ON CONFLICT (name) DO NOTHING`,
+      [name, description, sort]
+    );
+  }
+
   // ── Pillars (stable identity via `code`) ──
   for (const [code, name, description, driver] of PILLARS) {
     await db.query(

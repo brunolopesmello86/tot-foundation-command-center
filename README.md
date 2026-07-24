@@ -9,16 +9,22 @@ Same architecture as the Nexus board: **static frontend + Express API on Vercel 
 
 ## What it manages
 
-| Tab | Covers |
+Navigation is a left rail grouped into **Direction**, **Commercial** and **Organization**.
+
+| Section | Covers |
 |---|---|
-| **01 · Strategy** | North-star goal, three drivers, four pillars, the metrics scoreboard (actual vs target), and initiatives tracked per pillar with owner, status, health and progress. |
-| **02 · Pipeline** | Accounts and opportunities by sector, stage and margin tier (30 Land / 40 Standard / 50+ Differentiated). Open, weighted and closed-won roll-ups, filterable by sector. |
-| **03 · People** | Delivery ladder with base cost, bill rate and computed margin against each profile's target band; Build/Borrow/Buy model, utilization, and the AI + ICAgile/SAFe certification tracker. |
-| **04 · Assets & Certifications** | Asset/IP catalog with reuse and revenue, plus the ICAgile cohort machine — fill rate, revenue and gross margin per cohort. |
-| **05 · Financials** | The 3-year sales projection across Conservative / Base / Aggressive scenarios, and pipeline coverage against the first projected year. |
+| **Strategy** | North-star goal, three drivers, four pillars, the metrics scoreboard (actual vs target), and initiatives tracked per pillar with owner, status, health and progress. |
+| **Pipeline** | Accounts and opportunities by sector, stage and margin tier (30 Land / 40 Standard / 50+ Differentiated). Open, weighted and closed-won roll-ups, filterable by sector. |
+| **People** | Delivery ladder with base cost, bill rate and computed margin against each profile's target band; Build/Borrow/Buy model, utilization, and the AI + ICAgile/SAFe certification tracker. |
+| **Assets & Certifications** | Asset/IP catalog with reuse and revenue, plus the ICAgile cohort machine — fill rate, revenue and gross margin per cohort. |
+| **Financials** | The 3-year sales projection across Conservative / Base / Aggressive scenarios, and pipeline coverage against the first projected year. |
 
 The database ships seeded from the strategy deck and the Excel projection model, so the
 app opens with the real plan rather than an empty shell.
+
+**Everything is editable in the app** — this is the single source of truth, so nothing that
+describes the strategy lives in code. The goal's drivers and the pillars themselves are
+database rows with their own editors, not constants in a JavaScript file.
 
 ---
 
@@ -26,7 +32,7 @@ app opens with the real plan rather than an empty shell.
 
 ```
 public/            static frontend — no build step, no dependencies
-  index.html         shell + passcode gate
+  index.html         sidebar shell + passcode gate
   styles.css         NTT DATA design system, dark + light themes
   app.js             state, views, editor, router (ES module)
   charts.js          hand-rolled SVG charts

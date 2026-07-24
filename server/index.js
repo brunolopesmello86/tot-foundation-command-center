@@ -126,6 +126,12 @@ const RESOURCES = {
     defaulted: ['sort_order'],
     order: 'sort_order ASC, code ASC',
   },
+  drivers: {
+    table: 'drivers',
+    columns: ['name', 'description', 'sort_order'],
+    defaulted: ['sort_order'],
+    order: 'sort_order ASC, name ASC',
+  },
   metrics: {
     table: 'metrics',
     columns: ['name', 'category', 'unit', 'target_value', 'current_value', 'period', 'direction', 'notes', 'sort_order'],

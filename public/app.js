@@ -47,11 +47,6 @@ const COHORT_STATUS= ['Planned', 'Open', 'Running', 'Delivered', 'Cancelled'];
 const SCENARIOS    = ['Conservative', 'Base', 'Aggressive'];
 const BASELINE_K   = 2500; // 2025 exit run-rate ($K), per the projection model
 
-const DRIVERS = [
-  ['AI Co-pilot', 'Embed AI copilots into every offering so delivery is faster, smarter and visibly differentiated.'],
-  ['Assets / IPs', 'Productize our know-how into reusable assets that scale revenue without scaling headcount.'],
-  ['Digital Strategy as Spearhead', 'Lead with digital strategy to open new technology business across the wider NTT portfolio.'],
-];
 
 /* ── API layer ───────────────────────────────────────────────────────────── */
 
@@ -85,7 +80,7 @@ async function api(path, { method = 'GET', body } = {}) {
 /* ── State ───────────────────────────────────────────────────────────────── */
 
 const state = {
-  pillars: [], metrics: [], initiatives: [], accounts: [], opportunities: [],
+  pillars: [], drivers: [], metrics: [], initiatives: [], accounts: [], opportunities: [],
   projections: [], people: [], certifications: [], assets: [], cohorts: [],
 };
 
@@ -93,7 +88,54 @@ const ui = {
   view: 'strategy',
   scenario: 'Base',
   pipelineSector: 'All',
+  navOpen: false,      // mobile drawer
+  lastLoaded: null,
 };
+
+/* ── Navigation — grouped, rendered into the sidebar ─────────────────────── */
+
+const ICONS = {
+  strategy:   '<path d="M8 1.5 9.9 5.6l4.5.5-3.3 3 .9 4.4L8 11.4 4 13.5l.9-4.4-3.3-3 4.5-.5z"/>',
+  financials: '<path d="M2 13.5h12M4 11V6.5M7.3 11V3M10.7 11V7.8M14 11V5"/>',
+  pipeline:   '<path d="M1.5 3h13l-5 5.6V14L6.5 12V8.6z"/>',
+  people:     '<circle cx="6" cy="5" r="2.4"/><path d="M1.8 13.5c0-2.3 1.9-4.1 4.2-4.1s4.2 1.8 4.2 4.1"/><path d="M11 3.2a2.4 2.4 0 0 1 0 4.6M12.2 13.5c0-1.6-.5-2.6-1.2-3.4"/>',
+  assets:     '<path d="M2 4.6 8 1.5l6 3.1v6.8L8 14.5l-6-3.1z"/><path d="M2 4.6 8 7.8l6-3.2M8 7.8v6.7"/>',
+};
+
+const NAV = [
+  { group: 'Direction',    items: [
+    { view: 'strategy',   label: 'Strategy',   hint: 'Goal, pillars, scoreboard' },
+    { view: 'financials', label: 'Financials', hint: '3-year projection' },
+  ]},
+  { group: 'Commercial',   items: [
+    { view: 'pipeline',   label: 'Pipeline',   hint: 'Accounts & opportunities' },
+  ]},
+  { group: 'Organization', items: [
+    { view: 'people',     label: 'People',     hint: 'Ladder, margin, certs' },
+    { view: 'assets',     label: 'Assets & Certifications', hint: 'IP catalog & cohorts' },
+  ]},
+];
+
+const VIEW_META = {
+  strategy:   { title: 'Strategy',   sub: 'Playing to Win — one goal, three drivers, four pillars' },
+  pipeline:   { title: 'Pipeline',   sub: 'Commercial pipeline by sector, stage and margin tier' },
+  people:     { title: 'People',     sub: 'Delivery ladder, capacity and the certification path' },
+  assets:     { title: 'Assets & Certifications', sub: 'Reusable IP and the ICAgile cohort machine' },
+  financials: { title: 'Financials', sub: 'Three-year sales projection and pipeline coverage' },
+};
+
+function renderNav() {
+  const html = NAV.map((section) => `
+    <div class="nav-group">
+      <div class="nav-group-label">${esc(section.group)}</div>
+      ${section.items.map((item) => `
+        <button class="nav-item" data-view="${item.view}" aria-current="${ui.view === item.view}" title="${esc(item.hint)}">
+          <svg viewBox="0 0 16 16" aria-hidden="true">${ICONS[item.view]}</svg>
+          <span>${esc(item.label)}</span>
+        </button>`).join('')}
+    </div>`).join('');
+  document.getElementById('nav-sections').innerHTML = html;
+}
 
 /* ── Theme ───────────────────────────────────────────────────────────────── */
 // The initial theme is applied by an inline script in index.html, before first
@@ -173,6 +215,24 @@ const sum = (list, fn) => list.reduce((acc, item) => acc + num(fn(item)), 0);
 /* ── Entity definitions — drive both the editor form and the API calls ───── */
 
 const ENTITIES = {
+  drivers: {
+    label: 'Driver',
+    fields: [
+      { key: 'name', label: 'Driver', type: 'text', required: true, span: true },
+      { key: 'description', label: 'Description', type: 'textarea', span: true },
+      { key: 'sort_order', label: 'Sort', type: 'number' },
+    ],
+  },
+  pillars: {
+    label: 'Pillar',
+    fields: [
+      { key: 'name', label: 'Pillar', type: 'text', required: true, span: true },
+      { key: 'code', label: 'Number', type: 'number', required: true },
+      { key: 'driver', label: 'Powered by driver', type: 'select', options: () => state.drivers.map((d) => d.name) },
+      { key: 'sort_order', label: 'Sort', type: 'number' },
+      { key: 'description', label: 'Description', type: 'textarea', span: true },
+    ],
+  },
   metrics: {
     label: 'Metric',
     fields: [
@@ -429,14 +489,22 @@ function renderStrategy() {
     const done = list.filter((i) => i.status === 'Done').length;
     const atRisk = list.filter((i) => i.health === 'red' || i.status === 'At risk' || i.status === 'Blocked').length;
     return `<div class="pillar" data-code="${esc(p.code)}">
-      <div class="pillar-top"><span class="code">${esc(p.code)}</span><span class="name">${esc(p.name)}</span></div>
+      <div class="pillar-top">
+        <span class="code">${esc(p.code)}</span><span class="name">${esc(p.name)}</span>
+        <button class="btn sm ghost edit-inline" data-act="edit" data-entity="pillars" data-id="${esc(p.id)}" title="Edit pillar">Edit</button>
+      </div>
       <p>${esc(p.description)}</p>
       <div class="tally">${list.length} initiative${list.length === 1 ? '' : 's'} · ${done} done${atRisk ? ` · <span style="color:var(--critical)">${atRisk} at risk</span>` : ''}</div>
     </div>`;
   }).join('');
 
-  const driverCards = DRIVERS.map(([name, desc]) =>
-    `<div class="driver"><div class="name">${esc(name)}</div><p>${esc(desc)}</p></div>`).join('');
+  const driverCards = state.drivers.map((d) =>
+    `<div class="driver">
+      <div class="name">${esc(d.name)}
+        <button class="btn sm ghost edit-inline" data-act="edit" data-entity="drivers" data-id="${esc(d.id)}" title="Edit driver">Edit</button>
+      </div>
+      <p>${esc(d.description)}</p>
+    </div>`).join('') || '<p class="muted">No drivers yet.</p>';
 
   // Scoreboard — one tile per metric, grouped by category, with a target meter.
   const scoreboard = METRIC_CATS.map((cat) => {
@@ -488,15 +556,21 @@ function renderStrategy() {
     <div class="card">
       <div class="card-head">
         <h2>Drivers</h2>
-        <div class="hint">The three engines of growth — every pillar is powered by at least one.</div>
+        <div class="row-gap">
+          <div class="hint">The engines of growth — every pillar is powered by at least one.</div>
+          ${addButton('drivers', 'Driver')}
+        </div>
       </div>
       <div class="grid grid-3">${driverCards}</div>
     </div>
 
     <div class="card">
       <div class="card-head">
-        <h2>Four Strategic Pillars</h2>
-        <div class="hint">Where the work happens. Initiative counts roll up live from the table below.</div>
+        <h2>Strategic Pillars</h2>
+        <div class="row-gap">
+          <div class="hint">Where the work happens. Initiative counts roll up live from the table below.</div>
+          ${addButton('pillars', 'Pillar')}
+        </div>
       </div>
       <div class="grid grid-4">${pillarCards}</div>
     </div>
@@ -1074,12 +1148,18 @@ const VIEWS = {
 function renderView(name = ui.view) {
   if (!VIEWS[name]) name = 'strategy';
   ui.view = name;
-  // Deep-linkable: /#pipeline opens straight onto that tab.
+  // Deep-linkable: /#pipeline opens straight onto that section.
   if (location.hash.slice(1) !== name) history.replaceState(null, '', `#${name}`);
 
-  document.querySelectorAll('#tabs button').forEach((btn) => {
-    btn.setAttribute('aria-selected', String(btn.dataset.view === name));
-  });
+  const meta = VIEW_META[name];
+  document.getElementById('page-title').textContent = meta.title;
+  document.getElementById('page-sub').textContent = meta.sub;
+  document.getElementById('crumb').textContent = meta.title;
+  document.title = `${meta.title} · T&OT Command Center`;
+
+  renderNav();
+  closeNav();
+
   document.querySelectorAll('section.view').forEach((section) => {
     section.hidden = section.id !== `view-${name}`;
   });
@@ -1098,17 +1178,30 @@ async function reload(entityKey) {
   } else {
     Object.assign(state, await api('/bootstrap'));
   }
+  stampLoaded();
   renderView();
 }
 
+function stampLoaded() {
+  ui.lastLoaded = new Date();
+  const node = document.getElementById('nav-footer');
+  if (node) {
+    node.textContent = `Last loaded ${ui.lastLoaded.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+}
+
+function openNav()  { ui.navOpen = true;  document.getElementById('app').classList.add('nav-open'); }
+function closeNav() { ui.navOpen = false; document.getElementById('app').classList.remove('nav-open'); }
+
 async function boot() {
   document.getElementById('gate').hidden = true;
-  document.getElementById('shell').hidden = false;
+  document.getElementById('app').hidden = false;
   document.getElementById('loading').hidden = false;
   document.getElementById('views').hidden = true;
 
   try {
     Object.assign(state, await api('/bootstrap'));
+    stampLoaded();
     document.getElementById('loading').hidden = true;
     document.getElementById('views').hidden = false;
     renderView(location.hash.slice(1) || ui.view);
@@ -1121,7 +1214,7 @@ async function boot() {
 function logout() {
   token = null;
   localStorage.removeItem(TOKEN_KEY);
-  document.getElementById('shell').hidden = true;
+  document.getElementById('app').hidden = true;
   document.getElementById('gate').hidden = false;
   document.getElementById('gate-input').value = '';
 }
@@ -1148,10 +1241,12 @@ document.getElementById('gate-form').addEventListener('submit', async (event) =>
   }
 });
 
-document.getElementById('tabs').addEventListener('click', (event) => {
+document.getElementById('nav-sections').addEventListener('click', (event) => {
   const btn = event.target.closest('button[data-view]');
   if (btn) renderView(btn.dataset.view);
 });
+document.getElementById('nav-toggle').addEventListener('click', () => (ui.navOpen ? closeNav() : openNav()));
+document.getElementById('nav-scrim').addEventListener('click', closeNav);
 
 document.getElementById('btn-theme').addEventListener('click', () => {
   applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
