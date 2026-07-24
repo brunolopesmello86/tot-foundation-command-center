@@ -3,7 +3,11 @@
   "builds": [
     {
       "src": "api/index.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "//": "schema.sql is read at runtime by the cold-start bootstrap; the bundler only traces require()s, so include it explicitly.",
+        "includeFiles": ["server/**"]
+      }
     },
     {
       "src": "public/**",
