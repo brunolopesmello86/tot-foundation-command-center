@@ -4,7 +4,7 @@
    API and re-renders the affected view.
    ══════════════════════════════════════════════════════════════════════════ */
 
-import { stackedBar, hbars, SERIES_COLORS } from './charts.js';
+import { stackedBar, hbars, seriesColors } from './charts.js';
 
 /* ── Domain vocabulary (mirrors the Playing to Win deck) ─────────────────── */
 
@@ -94,6 +94,36 @@ const ui = {
   scenario: 'Base',
   pipelineSector: 'All',
 };
+
+/* ── Theme ───────────────────────────────────────────────────────────────── */
+// The initial theme is applied by an inline script in index.html, before first
+// paint, so there is no flash. This only handles switching afterwards.
+
+const THEME_KEY = 'tot_cc_theme';
+
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+function applyTheme(theme, { persist = true } = {}) {
+  document.documentElement.setAttribute('data-theme', theme);
+  if (persist) localStorage.setItem(THEME_KEY, theme);
+
+  const button = document.getElementById('btn-theme');
+  if (button) {
+    const isLight = theme === 'light';
+    button.querySelector('.theme-icon').textContent = isLight ? '☀' : '☾';
+    document.getElementById('theme-label').textContent = isLight ? 'Light' : 'Dark';
+    button.setAttribute('aria-pressed', String(isLight));
+    button.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+  }
+
+  // Charts read their palette from CSS custom properties at draw time, and each
+  // theme carries its own validated steps — so they must be redrawn, not
+  // recoloured in place.
+  const view = VIEWS[ui.view];
+  if (view && view.draw && !document.getElementById('views').hidden) view.draw();
+}
 
 /* ── Formatting & small helpers ──────────────────────────────────────────── */
 
@@ -894,9 +924,10 @@ function drawAssetCharts() {
 function projectionFor(scenario) {
   const rows = state.projections.filter((p) => p.scenario === scenario);
   const years = [...new Set(rows.map((r) => num(r.year)))].sort((a, b) => a - b);
+  const palette = seriesColors();
   const series = STREAMS.map((stream, i) => ({
     name: STREAM_SHORT[stream],
-    color: SERIES_COLORS[i],
+    color: palette[i],
     values: years.map((y) => sum(rows.filter((r) => num(r.year) === y && r.stream === stream), (r) => r.value_k)),
   }));
   const totals = years.map((_, idx) => series.reduce((acc, s) => acc + s.values[idx], 0));
@@ -1122,6 +1153,15 @@ document.getElementById('tabs').addEventListener('click', (event) => {
   if (btn) renderView(btn.dataset.view);
 });
 
+document.getElementById('btn-theme').addEventListener('click', () => {
+  applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
+});
+
+// Follow the OS only while the user has not made an explicit choice.
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (event) => {
+  if (!localStorage.getItem(THEME_KEY)) applyTheme(event.matches ? 'light' : 'dark', { persist: false });
+});
+
 document.getElementById('btn-logout').addEventListener('click', logout);
 document.getElementById('btn-print').addEventListener('click', () => window.print());
 document.getElementById('btn-refresh').addEventListener('click', async () => {
@@ -1168,6 +1208,11 @@ window.addEventListener('resize', () => {
 });
 
 /* ── Start ───────────────────────────────────────────────────────────────── */
+
+// Sync the toggle's icon and label with the theme the inline script already
+// applied. Not persisted — an OS-derived default must stay a default until the
+// user actually chooses.
+applyTheme(currentTheme(), { persist: false });
 
 if (token) {
   boot();

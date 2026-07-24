@@ -146,12 +146,37 @@ vercel --prod
 
 ---
 
+## Themes
+
+Dark and light, toggled from the header button. The choice is saved per browser; with no
+saved choice the app follows the operating system. An inline script in `<head>` applies the
+theme before first paint, so there is no flash of the wrong one.
+
+Both palettes live at the top of [public/styles.css](public/styles.css) as token blocks
+(`:root[data-theme='dark']` / `[data-theme='light']`). Nothing below those blocks
+references a raw hex, so the two modes cannot drift apart.
+
+**Light mode is a selected palette, not an inverted dark one** — its series colours are
+re-stepped for a white surface and separately validated. Charts read `--series-1..4` from
+CSS at draw time, which is what lets a theme switch recolour every mark.
+
+Verified numbers, if you change any colour:
+
+| | Dark | Light |
+|---|---|---|
+| Accent (brand orange) | `#F89818` — 8.2:1 on page | `#8F440B` — 7.0:1 on white |
+| Series palette | all six checks pass on `#0F2040` | all six checks pass on `#FFFFFF` |
+| Worst adjacent CVD ΔE | 9.2 | 8.1 |
+| Muted text | `#6A8AAA` | `#546F88` — 5.2:1 |
+
+Status colours stay green / amber / red in **both** themes. They encode meaning, not
+brand, so they are deliberately not swapped to the accent.
+
 ## Notes
 
-- **Charts** are hand-rolled SVG — no chart library. The four-colour categorical palette
-  (`--series-1..4` in [public/styles.css](public/styles.css)) is validated for the dark
-  navy surface: lightness band, chroma floor, colour-vision-deficiency separation and
-  3:1 contrast all pass. If you change those hues, re-validate them.
+- **Charts** are hand-rolled SVG — no chart library. If you change the categorical hues,
+  re-validate them: lightness band, chroma floor, colour-vision-deficiency separation and
+  3:1 contrast against that theme's surface.
 - **Single-measure bar charts use one hue** — the category name already carries identity,
   so cycling colours across an open-ended list (people, cohorts) would give two different
   entities the same colour while encoding nothing.

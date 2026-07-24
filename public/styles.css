@@ -1,45 +1,123 @@
 /* ══════════════════════════════════════════════════════════════════════════
    T&OT Foundation Command Center
    Digital Strategy Business Unit · NTT DATA USA
+
+   Two themes. Every colour is a token; nothing below the token blocks
+   references a raw hex, so the two modes stay in step.
+
+   Both palettes are validated rather than eyeballed:
+     · categorical series pass the lightness band, chroma floor, colour-vision-
+       deficiency separation and 3:1 contrast on their own surface
+     · the orange accent clears 4.5:1 for text in both modes
+   Light mode is a selected palette — its own steps, not an inverted dark.
    ══════════════════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap');
 
-:root {
+/* ── DARK (default) ─────────────────────────────────────────────────────── */
+:root,
+:root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* Brand chrome */
-  --green:      #00A040;
-  --green-lt:   #00C050;
-  --blue:       #08A8F8;
-  --orange:     #F89818;
   --bg:         #0A1628;
   --surface:    #0F2040;
   --surface-2:  #162B50;
   --surface-3:  #1D3765;
+
   --border:     rgba(8, 168, 248, 0.15);
   --border-str: rgba(8, 168, 248, 0.32);
+  --grid-line:  rgba(8, 168, 248, 0.12);
+  --body-grid:  rgba(8, 168, 248, 0.04);
+  --row-hover:  rgba(8, 168, 248, 0.05);
+  --row-rule:   rgba(8, 168, 248, 0.08);
+
   --text:       #E8F4FF;
   --text-2:     #A8C4E0;
   --muted:      #6A8AAA;
 
-  /* Categorical series — validated for the #0F2040 surface:
-     lightness band, chroma floor, CVD separation (worst adjacent ΔE 9.2),
-     normal-vision floor (18.1) and 3:1 contrast all pass. Assign in this
-     fixed order; never cycle, never reorder by rank. */
-  --series-1: #08A0E0;  /* Core consulting        */
-  --series-2: #12A36A;  /* Nexus Model            */
-  --series-3: #D26A12;  /* ICAgile certifications */
-  --series-4: #9B7FE8;  /* AI experiences         */
+  --blue:       #08A8F8;
 
-  /* Status — reserved, never reused as a series colour. Always ships with a label. */
+  /* Brand accent — orange. 8.20:1 on the page, 7.30:1 on a card. */
+  --accent:     #F89818;
+  --accent-lt:  #FFAE3D;
+  --accent-ink: #241000;   /* text on an accent-filled button — 8.26:1 */
+  --accent-wash-a: rgba(248, 152, 24, 0.14);
+  --accent-wash-b: rgba(8, 168, 248, 0.06);
+
+  /* Categorical series — fixed order, never cycled.
+     Worst adjacent CVD ΔE 9.2, normal-vision ΔE 18.1, all ≥3:1. */
+  --series-1: #08A0E0;
+  --series-2: #12A36A;
+  --series-3: #D26A12;
+  --series-4: #9B7FE8;
+
+  /* Status — reserved. Never reused as a series colour, always with a label.
+     These stay green/amber/red in both themes: they encode meaning, not brand. */
   --good:     #3FB950;
   --warning:  #D29922;
   --critical: #F85149;
+  --good-bg:     rgba(63, 185, 80, 0.10);
+  --good-br:     rgba(63, 185, 80, 0.35);
+  --warning-bg:  rgba(210, 153, 34, 0.10);
+  --warning-br:  rgba(210, 153, 34, 0.35);
+  --critical-bg: rgba(248, 81, 73, 0.10);
+  --critical-br: rgba(248, 81, 73, 0.35);
 
-  --radius: 10px;
-  --radius-sm: 6px;
+  --shadow: rgba(0, 0, 0, 0.45);
+  --scrim:  rgba(5, 12, 24, 0.78);
 }
+
+/* ── LIGHT ──────────────────────────────────────────────────────────────── */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg:         #F4F7FB;
+  --surface:    #FFFFFF;
+  --surface-2:  #F0F4F9;
+  --surface-3:  #E3EAF3;
+
+  --border:     rgba(13, 60, 110, 0.14);
+  --border-str: rgba(13, 60, 110, 0.28);
+  --grid-line:  rgba(13, 60, 110, 0.14);
+  --body-grid:  rgba(13, 60, 110, 0.035);
+  --row-hover:  rgba(13, 60, 110, 0.04);
+  --row-rule:   rgba(13, 60, 110, 0.08);
+
+  --text:       #0D1B2E;   /* 17.3:1 */
+  --text-2:     #34506E;   /*  8.3:1 */
+  --muted:      #546F88;   /*  5.2:1 — small labels need real contrast */
+
+  --blue:       #0E6BAF;   /*  5.6:1 */
+
+  /* Deeper burnt orange: 7.0:1 on white, and clearly separated from the
+     third series slot, which is also orange. */
+  --accent:     #8F440B;
+  --accent-lt:  #A04C0A;
+  --accent-ink: #FFFFFF;   /* 7.0:1 on the accent fill */
+  --accent-wash-a: rgba(143, 68, 11, 0.10);
+  --accent-wash-b: rgba(14, 107, 175, 0.06);
+
+  /* Re-stepped for the white surface — all six checks pass. */
+  --series-1: #1179C7;
+  --series-2: #0E7F55;
+  --series-3: #B4560E;
+  --series-4: #7B5BD6;
+
+  --good:     #1A7F37;
+  --warning:  #8A6100;
+  --critical: #C4342B;
+  --good-bg:     rgba(26, 127, 55, 0.10);
+  --good-br:     rgba(26, 127, 55, 0.32);
+  --warning-bg:  rgba(138, 97, 0, 0.10);
+  --warning-br:  rgba(138, 97, 0, 0.32);
+  --critical-bg: rgba(196, 52, 43, 0.10);
+  --critical-br: rgba(196, 52, 43, 0.32);
+
+  --shadow: rgba(13, 40, 70, 0.16);
+  --scrim:  rgba(20, 40, 66, 0.42);
+}
+
+:root { --radius: 10px; --radius-sm: 6px; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -53,6 +131,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   overflow-x: hidden;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 /* Faint engineering grid, matching the unit's deck styling */
@@ -61,8 +140,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(8, 168, 248, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(8, 168, 248, 0.04) 1px, transparent 1px);
+    linear-gradient(var(--body-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--body-grid) 1px, transparent 1px);
   background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
@@ -75,7 +154,6 @@ body::before {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--blue);
-  opacity: 0.85;
 }
 .mono { font-family: 'DM Mono', monospace; }
 .muted { color: var(--muted); }
@@ -88,7 +166,7 @@ h1 {
   line-height: 0.98;
   font-weight: 400;
 }
-h1 span { color: var(--green); }
+h1 span { color: var(--accent); }
 
 h2 {
   font-family: 'Bebas Neue', sans-serif;
@@ -97,11 +175,7 @@ h2 {
   font-weight: 400;
 }
 
-h3 {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
+h3 { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
 
 /* ── Login gate ─────────────────────────────────────────────────────────── */
 #gate {
@@ -126,12 +200,7 @@ h3 {
 .gate-card h1 { margin: 10px 0 6px; }
 .gate-card p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
 .gate-card form { display: flex; flex-direction: column; gap: 12px; }
-.gate-error {
-  color: var(--critical);
-  font-size: 12px;
-  min-height: 18px;
-  margin-top: 10px;
-}
+.gate-error { color: var(--critical); font-size: 12px; min-height: 18px; margin-top: 10px; }
 
 /* ── Shell & header ─────────────────────────────────────────────────────── */
 .shell { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 24px 24px 80px; }
@@ -185,6 +254,7 @@ nav.tabs button:focus-visible { outline: 2px solid var(--blue); outline-offset: 
   border-radius: var(--radius);
   padding: 20px;
 }
+
 /* Spacing is owned by the view, not by card adjacency — an adjacency rule also
    fires on cards that are grid children, which knocks them out of row alignment. */
 section.view > * + * { margin-top: 20px; }
@@ -231,31 +301,19 @@ section.view[hidden] { display: none; }
   font-variant-numeric: tabular-nums;
 }
 .stat .foot { font-size: 11px; color: var(--muted); }
-.stat.accent .value { color: var(--green-lt); }
+.stat.accent .value { color: var(--accent); }
 .stat.blue .value { color: var(--blue); }
 
 /* Target-vs-actual meter inside a stat tile */
-.meter {
-  height: 6px;
-  background: var(--surface-3);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 2px;
-}
-.meter > i {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: var(--blue);
-  transition: width 0.35s ease;
-}
+.meter { height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; margin-top: 2px; }
+.meter > i { display: block; height: 100%; border-radius: 3px; background: var(--blue); transition: width 0.35s ease; }
 .meter > i.is-good { background: var(--good); }
 .meter > i.is-warn { background: var(--warning); }
 .meter > i.is-bad  { background: var(--critical); }
 
 /* ── Strategy-on-a-page ─────────────────────────────────────────────────── */
 .goal-banner {
-  background: linear-gradient(135deg, rgba(0, 160, 64, 0.14), rgba(8, 168, 248, 0.06));
+  background: linear-gradient(135deg, var(--accent-wash-a), var(--accent-wash-b));
   border: 1px solid var(--border-str);
   border-radius: var(--radius);
   padding: 22px 24px;
@@ -265,7 +323,7 @@ section.view[hidden] { display: none; }
   font-size: clamp(30px, 4.4vw, 46px);
   letter-spacing: 0.03em;
   line-height: 1;
-  color: var(--green-lt);
+  color: var(--accent);
   margin: 6px 0 10px;
 }
 .goal-banner p { color: var(--text-2); font-size: 13px; max-width: 88ch; }
@@ -285,12 +343,7 @@ section.view[hidden] { display: none; }
 .pillar[data-code='3'] { border-left-color: var(--series-3); }
 .pillar[data-code='4'] { border-left-color: var(--series-4); }
 .pillar .pillar-top { display: flex; align-items: baseline; gap: 10px; }
-.pillar .code {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
-  line-height: 1;
-  color: var(--muted);
-}
+.pillar .code { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; color: var(--muted); }
 .pillar .name { font-weight: 600; font-size: 14px; }
 .pillar .tally {
   margin-top: auto;
@@ -317,13 +370,9 @@ thead th {
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
-tbody td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(8, 168, 248, 0.08);
-  vertical-align: middle;
-}
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--row-rule); vertical-align: middle; }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: rgba(8, 168, 248, 0.05); }
+tbody tr:hover { background: var(--row-hover); }
 td.right, th.right { text-align: right; }
 td.actions { text-align: right; white-space: nowrap; }
 .empty-row { color: var(--muted); font-style: italic; padding: 24px 12px; text-align: center; }
@@ -345,9 +394,9 @@ td.actions { text-align: right; white-space: nowrap; }
   white-space: nowrap;
 }
 .chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
-.chip.good     { color: var(--good);     border-color: rgba(63, 185, 80, 0.35);  background: rgba(63, 185, 80, 0.1); }
-.chip.warning  { color: var(--warning);  border-color: rgba(210, 153, 34, 0.35); background: rgba(210, 153, 34, 0.1); }
-.chip.critical { color: var(--critical); border-color: rgba(248, 81, 73, 0.35);  background: rgba(248, 81, 73, 0.1); }
+.chip.good     { color: var(--good);     border-color: var(--good-br);     background: var(--good-bg); }
+.chip.warning  { color: var(--warning);  border-color: var(--warning-br);  background: var(--warning-bg); }
+.chip.critical { color: var(--critical); border-color: var(--critical-br); background: var(--critical-bg); }
 .chip.neutral  { color: var(--muted); }
 .chip.plain::before { display: none; }
 
@@ -358,9 +407,9 @@ td.actions { text-align: right; white-space: nowrap; }
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
-.tier-30 { color: var(--warning); border-color: rgba(210, 153, 34, 0.35); }
+.tier-30 { color: var(--warning); border-color: var(--warning-br); }
 .tier-40 { color: var(--blue); }
-.tier-50 { color: var(--good); border-color: rgba(63, 185, 80, 0.35); }
+.tier-50 { color: var(--good); border-color: var(--good-br); }
 
 /* ── Progress bar in tables ─────────────────────────────────────────────── */
 .progress { display: flex; align-items: center; gap: 8px; min-width: 110px; }
@@ -389,10 +438,10 @@ button.btn, a.btn {
 }
 button.btn:hover, a.btn:hover { background: var(--surface-3); border-color: var(--blue); }
 button.btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-button.btn.primary { background: var(--green); border-color: var(--green); color: #04240F; font-weight: 500; }
-button.btn.primary:hover { background: var(--green-lt); border-color: var(--green-lt); }
-button.btn.danger { color: var(--critical); border-color: rgba(248, 81, 73, 0.4); }
-button.btn.danger:hover { background: rgba(248, 81, 73, 0.12); border-color: var(--critical); }
+button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+button.btn.primary:hover { background: var(--accent-lt); border-color: var(--accent-lt); }
+button.btn.danger { color: var(--critical); border-color: var(--critical-br); }
+button.btn.danger:hover { background: var(--critical-bg); border-color: var(--critical); }
 button.btn.sm { padding: 5px 10px; font-size: 10px; }
 button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -429,14 +478,14 @@ label.field > span {
   padding: 7px 14px;
   cursor: pointer;
 }
-.seg button[aria-pressed='true'] { background: var(--blue); color: #041828; font-weight: 500; }
+.seg button[aria-pressed='true'] { background: var(--blue); color: var(--surface); font-weight: 500; }
 
 /* ── Modal ──────────────────────────────────────────────────────────────── */
 .modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 90;
-  background: rgba(5, 12, 24, 0.78);
+  background: var(--scrim);
   display: grid;
   place-items: center;
   padding: 24px;
@@ -451,6 +500,7 @@ label.field > span {
   padding: 24px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
+  box-shadow: 0 18px 50px var(--shadow);
 }
 .modal h2 { margin-bottom: 18px; }
 .modal .fields { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
@@ -460,12 +510,8 @@ label.field > span {
 /* ── Charts ─────────────────────────────────────────────────────────────── */
 .chart { position: relative; width: 100%; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
-.chart .grid-line { stroke: rgba(8, 168, 248, 0.12); stroke-width: 1; }
-.chart .axis-text {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  fill: var(--muted);
-}
+.chart .grid-line { stroke: var(--grid-line); stroke-width: 1; }
+.chart .axis-text { font-family: 'DM Mono', monospace; font-size: 10px; fill: var(--muted); }
 .chart .bar-seg { transition: opacity 0.12s; }
 .chart .bar-seg:hover { opacity: 0.82; }
 .chart .value-label {
@@ -489,12 +535,19 @@ label.field > span {
   padding: 8px 10px;
   font-size: 12px;
   white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 20px var(--shadow);
   transform: translate(-50%, -100%);
   transition: opacity 0.1s;
+  color: var(--text);
 }
 .tooltip[hidden] { display: none; }
-.tooltip .t-name { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.tooltip .t-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .tooltip .t-val { font-variant-numeric: tabular-nums; }
 
 /* Horizontal distribution bars (sector / tier mix) */
@@ -502,7 +555,16 @@ label.field > span {
 .hbar-row .name { font-size: 12px; color: var(--text-2); }
 .hbar-row .track { height: 12px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
 .hbar-row .track > i { display: block; height: 100%; border-radius: 0 3px 3px 0; }
-.hbar-row .val { font-family: 'DM Mono', monospace; font-size: 11px; text-align: right; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.hbar-row .val {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-align: right;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Theme toggle ───────────────────────────────────────────────────────── */
+#btn-theme .theme-icon { font-size: 12px; line-height: 1; }
 
 /* ── Toast ──────────────────────────────────────────────────────────────── */
 #toast {
@@ -516,7 +578,8 @@ label.field > span {
   border-radius: var(--radius-sm);
   padding: 11px 18px;
   font-size: 13px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 28px var(--shadow);
+  color: var(--text);
 }
 #toast[hidden] { display: none; }
 #toast.error { border-color: var(--critical); color: var(--critical); }
@@ -532,6 +595,10 @@ label.field > span {
 @media (max-width: 640px) {
   .shell { padding: 16px 14px 60px; }
   .hbar-row { grid-template-columns: 96px 1fr 64px; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
 }
 
 @media print {

@@ -11,10 +11,24 @@
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-export const SERIES_COLORS = ['#08A0E0', '#12A36A', '#D26A12', '#9B7FE8'];
-const SURFACE = '#0F2040';
 const SEG_GAP = 2;
 const END_RADIUS = 4;
+
+/**
+ * The categorical slots, read from CSS custom properties at draw time.
+ *
+ * Each theme defines its own steps — light mode is a selected palette, not an
+ * inverted dark one — so reading them live is what lets a theme switch recolour
+ * every mark without the chart code knowing which theme is active.
+ */
+export function seriesColors() {
+  const styles = getComputedStyle(document.documentElement);
+  const slots = [1, 2, 3, 4]
+    .map((n) => styles.getPropertyValue(`--series-${n}`).trim())
+    .filter(Boolean);
+  // Fall back to the dark steps if the stylesheet has not applied yet.
+  return slots.length === 4 ? slots : ['#08A0E0', '#12A36A', '#D26A12', '#9B7FE8'];
+}
 
 function el(name, attrs = {}) {
   const node = document.createElementNS(SVG_NS, name);
@@ -111,7 +125,8 @@ export function stackedBar(container, { categories, series, format = (n) => n, t
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
 
-  const coloured = series.map((s, i) => ({ ...s, color: s.color || SERIES_COLORS[i % SERIES_COLORS.length] }));
+  const palette = seriesColors();
+  const coloured = series.map((s, i) => ({ ...s, color: s.color || palette[i % palette.length] }));
   const totals = categories.map((_, ci) => coloured.reduce((sum, s) => sum + (Number(s.values[ci]) || 0), 0));
   const max = niceMax(Math.max(...totals, 0));
   const yOf = (v) => pad.top + plotH - (v / max) * plotH;
@@ -231,7 +246,7 @@ export function hbars(container, { rows, format = (n) => n, emptyText = 'No data
     track.className = 'track';
     const fill = document.createElement('i');
     fill.style.width = `${Math.min(100, (value / max) * 100)}%`;
-    fill.style.background = r.color || SERIES_COLORS[0];
+    fill.style.background = r.color || seriesColors()[0];
     track.appendChild(fill);
 
     const val = document.createElement('div');
@@ -242,5 +257,3 @@ export function hbars(container, { rows, format = (n) => n, emptyText = 'No data
     container.appendChild(row);
   });
 }
-
-export { SURFACE };

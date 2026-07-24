@@ -6,6 +6,19 @@
 <title>T&amp;OT Foundation · Command Center</title>
 <meta name="description" content="Management UI for the T&amp;OT Foundation — Digital Strategy Business Unit, NTT DATA USA. Strategy scoreboard, commercial pipeline, people &amp; capacity, assets &amp; certification engine.">
 <link rel="stylesheet" href="/styles.css">
+<script>
+  // Runs before first paint so the chosen theme never flashes the wrong one.
+  // Saved choice wins; otherwise follow the operating system.
+  (function () {
+    try {
+      var saved = localStorage.getItem('tot_cc_theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
 </head>
 <body>
 
@@ -36,6 +49,9 @@
       <div class="sub">Playing to Win · strategy cycle 2026–2028 · drive sustainable growth</div>
     </div>
     <div class="actions">
+      <button class="btn sm" id="btn-theme" title="Switch between light and dark" aria-pressed="false">
+        <span class="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Dark</span>
+      </button>
       <button class="btn sm" id="btn-refresh" title="Reload all data from the database">Refresh</button>
       <button class="btn sm" id="btn-print" title="Print or save the current view as PDF">Print</button>
       <button class="btn sm danger" id="btn-logout">Sign out</button>
