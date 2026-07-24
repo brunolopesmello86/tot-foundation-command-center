@@ -12,47 +12,47 @@
    Light mode is a selected palette — its own steps, not an inverted dark.
    ══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Serif:wght@400;500;600;700&display=swap');
 
 /* ── DARK (default) ─────────────────────────────────────────────────────── */
 :root,
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg:         #0A1628;
-  --surface:    #0F2040;
-  --surface-2:  #162B50;
-  --surface-3:  #1D3765;
+  /* NTT DATA's own navy family, lifted from their stylesheet */
+  --bg:         #070F26;
+  --surface:    #141B31;
+  --surface-2:  #1D264D;
+  --surface-3:  #2A3558;
 
-  --border:     rgba(8, 168, 248, 0.15);
-  --border-str: rgba(8, 168, 248, 0.32);
-  --grid-line:  rgba(8, 168, 248, 0.12);
-  --body-grid:  rgba(8, 168, 248, 0.04);
-  --row-hover:  rgba(8, 168, 248, 0.05);
-  --row-rule:   rgba(8, 168, 248, 0.08);
+  --border:     rgba(232, 232, 232, 0.12);
+  --border-str: rgba(232, 232, 232, 0.26);
+  --grid-line:  rgba(232, 232, 232, 0.12);
+  --body-grid:  rgba(255, 255, 255, 0.032);
+  --row-hover:  rgba(255, 255, 255, 0.04);
+  --row-rule:   rgba(232, 232, 232, 0.09);
 
-  --text:       #E8F4FF;
-  --text-2:     #A8C4E0;
-  --muted:      #6A8AAA;
+  --text:       #FFFFFF;
+  --text-2:     #C9D1DE;
+  --muted:      #A6B0C2;   /* 7.8:1 — their #949494 also passes, this reads bluer */
 
-  --blue:       #08A8F8;
+  /* Their #0072BC only makes 3.4:1 on this navy, so dark mode uses their
+     brighter blue and keeps #0072BC for solid fills that carry white text. */
+  --blue:       #19A3FC;
+  --blue-solid: #0072BC;
+  --on-blue:    #FFFFFF;
 
-  /* Brand accent — orange. 8.20:1 on the page, 7.30:1 on a card. */
   --accent:     #F89818;
   --accent-lt:  #FFAE3D;
-  --accent-ink: #241000;   /* text on an accent-filled button — 8.26:1 */
-  --accent-wash-a: rgba(248, 152, 24, 0.14);
-  --accent-wash-b: rgba(8, 168, 248, 0.06);
+  --accent-ink: #241000;
+  --accent-wash-a: rgba(248, 152, 24, 0.13);
+  --accent-wash-b: rgba(25, 163, 252, 0.06);
 
-  /* Categorical series — fixed order, never cycled.
-     Worst adjacent CVD ΔE 9.2, normal-vision ΔE 18.1, all ≥3:1. */
   --series-1: #08A0E0;
   --series-2: #12A36A;
   --series-3: #D26A12;
   --series-4: #9B7FE8;
 
-  /* Status — reserved. Never reused as a series colour, always with a label.
-     These stay green/amber/red in both themes: they encode meaning, not brand. */
   --good:     #3FB950;
   --warning:  #D29922;
   --critical: #F85149;
@@ -63,41 +63,40 @@
   --critical-bg: rgba(248, 81, 73, 0.10);
   --critical-br: rgba(248, 81, 73, 0.35);
 
-  --shadow: rgba(0, 0, 0, 0.45);
-  --scrim:  rgba(5, 12, 24, 0.78);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim:  rgba(7, 15, 38, 0.82);
 }
 
 /* ── LIGHT ──────────────────────────────────────────────────────────────── */
 :root[data-theme='light'] {
   color-scheme: light;
 
-  --bg:         #F4F7FB;
+  --bg:         #F2F3F4;
   --surface:    #FFFFFF;
-  --surface-2:  #F0F4F9;
-  --surface-3:  #E3EAF3;
+  --surface-2:  #F2F3F4;
+  --surface-3:  #E8E8E8;
 
-  --border:     rgba(13, 60, 110, 0.14);
-  --border-str: rgba(13, 60, 110, 0.28);
-  --grid-line:  rgba(13, 60, 110, 0.14);
-  --body-grid:  rgba(13, 60, 110, 0.035);
-  --row-hover:  rgba(13, 60, 110, 0.04);
-  --row-rule:   rgba(13, 60, 110, 0.08);
+  --border:     #E4E7EA;
+  --border-str: #CFD5DB;
+  --grid-line:  rgba(46, 64, 77, 0.16);
+  --body-grid:  rgba(46, 64, 77, 0.035);
+  --row-hover:  rgba(46, 64, 77, 0.04);
+  --row-rule:   rgba(46, 64, 77, 0.09);
 
-  --text:       #0D1B2E;   /* 17.3:1 */
-  --text-2:     #34506E;   /*  8.3:1 */
-  --muted:      #546F88;   /*  5.2:1 — small labels need real contrast */
+  --text:       #070F26;   /* 19.0:1 */
+  --text-2:     #2E404D;   /* 10.7:1 — their slate */
+  --muted:      #5A6875;   /*  5.7:1 — their #949494 only makes 3.0:1, too weak here */
 
-  --blue:       #0E6BAF;   /*  5.6:1 */
+  --blue:       #0072BC;   /*  5.1:1 — their primary blue */
+  --blue-solid: #0072BC;
+  --on-blue:    #FFFFFF;
 
-  /* Deeper burnt orange: 7.0:1 on white, and clearly separated from the
-     third series slot, which is also orange. */
   --accent:     #8F440B;
   --accent-lt:  #A04C0A;
-  --accent-ink: #FFFFFF;   /* 7.0:1 on the accent fill */
-  --accent-wash-a: rgba(143, 68, 11, 0.10);
-  --accent-wash-b: rgba(14, 107, 175, 0.06);
+  --accent-ink: #FFFFFF;
+  --accent-wash-a: rgba(143, 68, 11, 0.09);
+  --accent-wash-b: rgba(0, 114, 188, 0.06);
 
-  /* Re-stepped for the white surface — all six checks pass. */
   --series-1: #1179C7;
   --series-2: #0E7F55;
   --series-3: #B4560E;
@@ -105,26 +104,31 @@
 
   --good:     #1A7F37;
   --warning:  #8A6100;
-  --critical: #C4342B;
+  --critical: #E42600;   /* their red — 4.6:1 */
   --good-bg:     rgba(26, 127, 55, 0.10);
   --good-br:     rgba(26, 127, 55, 0.32);
   --warning-bg:  rgba(138, 97, 0, 0.10);
   --warning-br:  rgba(138, 97, 0, 0.32);
-  --critical-bg: rgba(196, 52, 43, 0.10);
-  --critical-br: rgba(196, 52, 43, 0.32);
+  --critical-bg: rgba(228, 38, 0, 0.09);
+  --critical-br: rgba(228, 38, 0, 0.30);
 
-  --shadow: rgba(13, 40, 70, 0.16);
-  --scrim:  rgba(20, 40, 66, 0.42);
+  --shadow: rgba(7, 15, 38, 0.14);
+  --scrim:  rgba(7, 15, 38, 0.45);
 }
 
-:root { --radius: 10px; --radius-sm: 6px; }
+:root {
+  --font-sans:  'Noto Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif', Georgia, serif;
+  --radius: 4px;      /* NTT DATA's surfaces are near-square, not pill-soft */
+  --radius-sm: 3px;
+}
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -149,30 +153,42 @@ body::before {
 
 /* ── Typography helpers ─────────────────────────────────────────────────── */
 .eyebrow {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--blue);
 }
-.mono { font-family: 'DM Mono', monospace; }
+
+/* NTT DATA's section-label pattern: a short label with a hairline running to
+   the end of the row ("Trending insights ─────────"). */
+.eyebrow-rule { display: flex; align-items: center; gap: 14px; }
+.eyebrow-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.mono { font-family: var(--font-sans); }
 .muted { color: var(--muted); }
-.num { font-family: 'DM Mono', monospace; font-variant-numeric: tabular-nums; }
+.num { font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
 
 h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(28px, 4vw, 42px);
-  letter-spacing: 0.04em;
-  line-height: 0.98;
-  font-weight: 400;
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 3.6vw, 38px);
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  font-weight: 600;
 }
 h1 span { color: var(--accent); }
 
 h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 24px;
-  letter-spacing: 0.05em;
-  font-weight: 400;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  font-weight: 600;
 }
 
 h3 { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
@@ -234,11 +250,12 @@ nav.tabs button {
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 12px 16px;
+  padding: 13px 16px;
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
@@ -287,17 +304,19 @@ section.view[hidden] { display: none; }
   gap: 6px;
 }
 .stat .label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .stat .value {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 34px;
-  line-height: 1;
-  letter-spacing: 0.02em;
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 .stat .foot { font-size: 11px; color: var(--muted); }
@@ -319,12 +338,13 @@ section.view[hidden] { display: none; }
   padding: 22px 24px;
 }
 .goal-banner .goal-value {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(30px, 4.4vw, 46px);
-  letter-spacing: 0.03em;
-  line-height: 1;
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
   color: var(--accent);
-  margin: 6px 0 10px;
+  margin: 10px 0 12px;
 }
 .goal-banner p { color: var(--text-2); font-size: 13px; max-width: 88ch; }
 
@@ -343,13 +363,13 @@ section.view[hidden] { display: none; }
 .pillar[data-code='3'] { border-left-color: var(--series-3); }
 .pillar[data-code='4'] { border-left-color: var(--series-4); }
 .pillar .pillar-top { display: flex; align-items: baseline; gap: 10px; }
-.pillar .code { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; color: var(--muted); }
+.pillar .code { font-family: var(--font-serif); font-size: 24px; font-weight: 600; line-height: 1; color: var(--muted); }
 .pillar .name { font-weight: 600; font-size: 14px; }
 .pillar .tally {
   margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid var(--border);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-2);
 }
@@ -359,18 +379,19 @@ section.view[hidden] { display: none; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
 thead th {
   text-align: left;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  font-weight: 500;
+  font-weight: 700;
   padding: 10px 12px;
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 tbody td { padding: 10px 12px; border-bottom: 1px solid var(--row-rule); vertical-align: middle; }
+td.right, td.num { font-variant-numeric: tabular-nums; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--row-hover); }
 td.right, th.right { text-align: right; }
@@ -382,12 +403,13 @@ td.actions { text-align: right; white-space: nowrap; }
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: 2px;
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text-2);
@@ -399,9 +421,16 @@ td.actions { text-align: right; white-space: nowrap; }
 .chip.critical { color: var(--critical); border-color: var(--critical-br); background: var(--critical-bg); }
 .chip.neutral  { color: var(--muted); }
 .chip.plain::before { display: none; }
+/* Solid blue category tag — the label style on their insight cards. */
+.chip.tag {
+  background: var(--blue-solid);
+  border-color: var(--blue-solid);
+  color: var(--on-blue);
+}
+.chip.tag::before { display: none; }
 
 .tier {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
   padding: 2px 7px;
   border-radius: var(--radius-sm);
@@ -415,14 +444,15 @@ td.actions { text-align: right; white-space: nowrap; }
 .progress { display: flex; align-items: center; gap: 8px; min-width: 110px; }
 .progress .track { flex: 1; height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
 .progress .track > i { display: block; height: 100%; border-radius: 3px; background: var(--blue); }
-.progress .pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); min-width: 30px; text-align: right; }
+.progress .pct { font-family: var(--font-sans); font-size: 11px; color: var(--muted); min-width: 30px; text-align: right; }
 
 /* ── Buttons & inputs ───────────────────────────────────────────────────── */
 button.btn, a.btn {
   appearance: none;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 8px 14px;
   border-radius: var(--radius-sm);
@@ -446,7 +476,7 @@ button.btn.sm { padding: 5px 10px; font-size: 10px; }
 button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 input, select, textarea {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   width: 100%;
   padding: 9px 11px;
@@ -459,7 +489,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 textarea { resize: vertical; min-height: 72px; }
 label.field { display: flex; flex-direction: column; gap: 6px; }
 label.field > span {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -471,9 +501,10 @@ label.field > span {
   background: transparent;
   border: none;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 7px 14px;
   cursor: pointer;
@@ -511,11 +542,11 @@ label.field > span {
 .chart { position: relative; width: 100%; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .chart .grid-line { stroke: var(--grid-line); stroke-width: 1; }
-.chart .axis-text { font-family: 'DM Mono', monospace; font-size: 10px; fill: var(--muted); }
+.chart .axis-text { font-family: var(--font-sans); font-size: 10px; fill: var(--muted); }
 .chart .bar-seg { transition: opacity 0.12s; }
 .chart .bar-seg:hover { opacity: 0.82; }
 .chart .value-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
   fill: var(--text-2);
   font-variant-numeric: tabular-nums;
@@ -542,7 +573,7 @@ label.field > span {
 }
 .tooltip[hidden] { display: none; }
 .tooltip .t-name {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -556,7 +587,7 @@ label.field > span {
 .hbar-row .track { height: 12px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
 .hbar-row .track > i { display: block; height: 100%; border-radius: 0 3px 3px 0; }
 .hbar-row .val {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
   text-align: right;
   color: var(--text-2);
@@ -585,7 +616,7 @@ label.field > span {
 #toast.error { border-color: var(--critical); color: var(--critical); }
 
 /* ── Misc ───────────────────────────────────────────────────────────────── */
-.loading { padding: 60px 0; text-align: center; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.1em; }
+.loading { padding: 60px 0; text-align: center; color: var(--muted); font-family: var(--font-sans); font-size: 12px; letter-spacing: 0.1em; }
 .row-gap { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

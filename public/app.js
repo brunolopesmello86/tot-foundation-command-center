@@ -458,7 +458,7 @@ function renderStrategy() {
       </div>`;
     }).join('');
     return `<div style="margin-bottom:18px">
-      <div class="eyebrow" style="margin-bottom:10px">${esc(cat)}</div>
+      <div class="eyebrow eyebrow-rule" style="margin-bottom:12px">${esc(cat)}</div>
       <div class="grid grid-4">${tiles}</div>
     </div>`;
   }).join('');
@@ -467,7 +467,7 @@ function renderStrategy() {
     const pillar = state.pillars.find((p) => num(p.code) === num(i.pillar_code));
     return `<tr>
       <td>${esc(i.title)}${i.description ? `<div class="muted" style="font-size:11px;margin-top:3px">${esc(i.description)}</div>` : ''}</td>
-      <td>${pillar ? `<span class="chip plain">${esc(pillar.code)} · ${esc(pillar.name)}</span>` : '<span class="muted">—</span>'}</td>
+      <td>${pillar ? `<span class="chip tag">${esc(pillar.code)} · ${esc(pillar.name)}</span>` : '<span class="muted">—</span>'}</td>
       <td>${dash(i.owner)}</td>
       <td>${statusChip(i.status)}</td>
       <td><span class="chip ${healthClass(i.health)}">${esc(i.health || 'green')}</span></td>

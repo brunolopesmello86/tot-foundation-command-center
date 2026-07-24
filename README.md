@@ -27,7 +27,7 @@ app opens with the real plan rather than an empty shell.
 ```
 public/            static frontend — no build step, no dependencies
   index.html         shell + passcode gate
-  styles.css         NTT DATA dark theme
+  styles.css         NTT DATA design system, dark + light themes
   app.js             state, views, editor, router (ES module)
   charts.js          hand-rolled SVG charts
 api/index.js       Vercel serverless entry — re-exports the Express app
@@ -146,6 +146,33 @@ vercel --prod
 
 ---
 
+## Look and feel
+
+The design system follows **nttdata.com**. The tokens were taken from their live
+stylesheet rather than sampled off a screenshot:
+
+| | NTT DATA value | Where it is used here |
+|---|---|---|
+| Display face | `Noto Serif` | page title, card headings, stat values, the north-star goal |
+| Body face | `Noto Sans` | everything else, with tabular figures in data columns |
+| Dark navy | `#070F26` / `#141B31` / `#1D264D` | page, cards, raised surfaces |
+| Primary blue | `#0072BC` | category tags, light-mode links and tab underline |
+| Slate | `#2E404D` | light-mode secondary text |
+| Red | `#E42600` | light-mode critical status |
+
+Structural patterns borrowed: the section label with a hairline running to the end of
+the row, solid blue category tags, near-square corners (4px, not pill-soft), and a
+generous serif display scale over a compact sans body.
+
+Two deliberate departures, both for legibility in a dense tool rather than a marketing
+page:
+
+- **The accent is orange** (`#F89818` dark, `#8F440B` light) where NTT DATA uses gold
+  `#ffc400`, because that is the accent chosen for this app.
+- **Their `#0072BC` blue and `#949494` grey are light-mode only.** On the dark navy the
+  blue reaches just 3.4:1 and the grey is too weak for small labels, so dark mode uses
+  their brighter `#19A3FC` and a bluer `#A6B0C2`.
+
 ## Themes
 
 Dark and light, toggled from the header button. The choice is saved per browser; with no
@@ -164,10 +191,10 @@ Verified numbers, if you change any colour:
 
 | | Dark | Light |
 |---|---|---|
-| Accent (brand orange) | `#F89818` — 8.2:1 on page | `#8F440B` — 7.0:1 on white |
-| Series palette | all six checks pass on `#0F2040` | all six checks pass on `#FFFFFF` |
+| Accent | `#F89818` — 7.7:1 on a card | `#8F440B` — 7.0:1 on white |
+| Series palette | all six checks pass on `#141B31` | all six checks pass on `#FFFFFF` |
 | Worst adjacent CVD ΔE | 9.2 | 8.1 |
-| Muted text | `#6A8AAA` | `#546F88` — 5.2:1 |
+| Muted text | `#A6B0C2` — 7.8:1 | `#546F88` — 5.7:1 |
 
 Status colours stay green / amber / red in **both** themes. They encode meaning, not
 brand, so they are deliberately not swapped to the accent.
