@@ -20,7 +20,7 @@ const STREAM_SHORT = {
   [STREAMS[2]]: 'ICAgile certs',
   [STREAMS[3]]: 'AI experiences',
 };
-const SECTORS      = ['Banking', 'Industry', 'Utilities', 'Other'];
+const SECTORS      = ['Multilaterals', 'FIS', 'Utilities', 'Banking', 'Industry', 'Other'];
 const GEOGRAPHIES  = ['US', 'LATAM'];
 const ACCOUNT_TIER = ['Strategic', 'Priority', 'New logo'];
 const STAGES       = ['Qualify', 'Proposal', 'Negotiation', 'Won', 'Lost'];
