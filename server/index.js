@@ -180,6 +180,18 @@ const RESOURCES = {
     defaulted: ['status', 'reuse_count', 'revenue_k', 'sort_order'],
     order: 'sort_order ASC, name ASC',
   },
+  tensions: {
+    table: 'tensions',
+    columns: ['title', 'detail', 'stage', 'priority', 'raised_by', 'role', 'processed_at', 'sort_order'],
+    defaulted: ['stage', 'priority', 'sort_order'],
+    order: 'sort_order ASC, created_at ASC',
+  },
+  projects: {
+    table: 'projects',
+    columns: ['title', 'detail', 'stage', 'card_type', 'owner', 'due_date', 'done_at', 'sort_order'],
+    defaulted: ['stage', 'card_type', 'sort_order'],
+    order: 'sort_order ASC, created_at ASC',
+  },
   cohorts: {
     table: 'cohorts',
     columns: ['name', 'course', 'audience', 'client', 'status', 'start_date', 'seats', 'enrolled', 'tuition', 'cert_fee', 'trainer', 'notes'],

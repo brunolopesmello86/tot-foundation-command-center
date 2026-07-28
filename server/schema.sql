@@ -164,6 +164,41 @@ CREATE TABLE IF NOT EXISTS assets (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- ═══════════════════════ 5 · ORGANIZATION BOARDS ═══════════════════════════
+
+-- Creative Tensions board (O2 system). A tension is the gap between what is and
+-- what could be better; cards flow intake -> processing -> synchronized.
+CREATE TABLE IF NOT EXISTS tensions (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title        TEXT NOT NULL,
+    detail       TEXT,
+    stage        TEXT NOT NULL DEFAULT 'Creative Tensions', -- Creative Tensions | Prioritized | Clarifying | Action Proposal | Synchronized
+    priority     TEXT NOT NULL DEFAULT 'Medium',            -- Critical | High | Medium | Low
+    raised_by    TEXT,
+    role         TEXT,                                      -- what role can address it
+    processed_at TIMESTAMPTZ,                               -- stamped when it reaches Synchronized
+    sort_order   INTEGER NOT NULL DEFAULT 0,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_tensions_stage ON tensions(stage);
+
+-- Internal Projects board — the team's own initiatives.
+CREATE TABLE IF NOT EXISTS projects (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title      TEXT NOT NULL,
+    detail     TEXT,
+    stage      TEXT NOT NULL DEFAULT 'Backlog',   -- Backlog | Prioritized | Create | Review | Done
+    card_type  TEXT NOT NULL DEFAULT 'Project',   -- Project | Move Act | Idea | Pending Action
+    owner      TEXT,
+    due_date   DATE,
+    done_at    TIMESTAMPTZ,                        -- stamped when it reaches Done
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_projects_stage ON projects(stage);
+
 CREATE TABLE IF NOT EXISTS cohorts (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name       TEXT NOT NULL,

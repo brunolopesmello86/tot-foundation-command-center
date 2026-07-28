@@ -17,6 +17,8 @@ Navigation is a left rail grouped into **Direction**, **Commercial** and **Organ
 | **Pipeline** | Accounts and opportunities by sector, stage and margin tier (30 Land / 40 Standard / 50+ Differentiated). Open, weighted and closed-won roll-ups, filterable by sector. |
 | **People** | Delivery ladder with base cost, bill rate and computed margin against each profile's target band; Build/Borrow/Buy model, utilization, and the AI + ICAgile/SAFe certification tracker. |
 | **Assets & Certifications** | Asset/IP catalog with reuse and revenue, plus the ICAgile cohort machine — fill rate, revenue and gross margin per cohort. |
+| **Tensions Board** | Creative-tensions kanban (O2 system): intake → In Processing → Synchronized, cards by priority, drag to move. A Report tab shows throughput per week, people raising tensions, and average days to process. |
+| **Internal Projects** | Kanban for the team's own initiatives: Backlog → In Progress → Done, cards by type and owner. Same flow-metrics report. |
 | **Financials** | The 3-year sales projection across Conservative / Base / Aggressive scenarios, and pipeline coverage against the first projected year. |
 
 The database ships seeded from the strategy deck and the Excel projection model, so the

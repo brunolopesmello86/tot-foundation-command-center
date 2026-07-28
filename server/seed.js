@@ -199,6 +199,86 @@ async function seed() {
       );
     }
   }
+
+  // ── Creative Tensions board ──
+  if (await isEmpty('tensions')) {
+    // Active cards, transcribed from the board. stage, priority, title, raised_by, detail
+    const ACTIVE = [
+      ['Creative Tensions', 'Critical', 'Schedule the on-site meeting in January', 'Bruno', null],
+      ['Creative Tensions', 'High', 'Define the minimum set of artifacts a foundation needs to become a circle', 'Ana', '1. Take on proposals  2. Drive career for the team'],
+      ['Creative Tensions', 'Critical', 'Bring all CSRs, management tools and documentation into our space', 'Ana', null],
+      ['Creative Tensions', 'High', 'Schedule virtual sessions to run the homework before the on-site', 'Sofia', null],
+      ['Creative Tensions', 'High', 'Channel responsibilities through the circle leaders', 'Edu', null],
+      ['Creative Tensions', 'High', 'How might we standardize the GECOVALs for our projects?', 'Bruno', null],
+      ['Creative Tensions', 'High', 'Client managers stakeholder mapping', 'Ana', null],
+      ['Creative Tensions', 'Medium', 'Financial training sessions (permits, forecasting, billing)', 'Mau', null],
+      ['Creative Tensions', 'Medium', 'Organize the MERO dashboards for each foundation, circle and meeting', 'Bruno', null],
+      ['Prioritized', 'Critical', 'Governance urgent updates', 'Bruno', null],
+      ['Prioritized', 'Critical', 'AI dashboard for project delivery', 'Edu', null],
+      ['Clarifying', 'High', 'Standardize the proposal intake for the team', 'Ana', 'What do we need from this role?'],
+    ];
+    let sort = 0;
+    for (const [stage, priority, title, raised_by, detail] of ACTIVE) {
+      await db.query(
+        `INSERT INTO tensions (stage, priority, title, raised_by, detail, sort_order)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [stage, priority, title, raised_by, detail, sort++]
+      );
+    }
+    // Historical Synchronized tensions — example content so the flow report has
+    // several weeks of throughput. priority, title, raised_by, created, processed
+    const DONE = [
+      ['High',     'Agree the sync cadence — 1 biweekly sync, weekly commercial review', 'Bruno', '2026-06-10', '2026-06-26'],
+      ['Medium',   'Clarify billing approvals for multilateral clients',                 'Mau',   '2026-06-20', '2026-07-02'],
+      ['High',     'Agree the onboarding checklist for new consultants',                 'Sofia', '2026-06-30', '2026-07-10'],
+      ['High',     'Consolidate the proposal templates',                                 'Ana',   '2026-07-01', '2026-07-15'],
+      ['Medium',   'Assign GECOVAL owners per project',                                  'Edu',   '2026-07-05', '2026-07-21'],
+      ['Critical', 'Resolve the staffing backlog for Q3',                                'Ana',   '2026-06-18', '2026-07-24'],
+      ['High',     'Set up the shared stakeholder map',                                  'Bruno', '2026-07-08', '2026-07-23'],
+    ];
+    for (const [priority, title, raised_by, created, processed] of DONE) {
+      await db.query(
+        `INSERT INTO tensions (stage, priority, title, raised_by, created_at, processed_at, sort_order)
+         VALUES ('Synchronized',$1,$2,$3,$4,$5,$6)`,
+        [priority, title, raised_by, created, processed, sort++]
+      );
+    }
+  }
+
+  // ── Internal Projects board ──
+  if (await isEmpty('projects')) {
+    // stage, card_type, title, owner, due, detail
+    const ACTIVE = [
+      ['Backlog',     'Pending Action', 'Request access to financial systems (Vic and Mendez)', 'Mau',    null,         null],
+      ['Prioritized', 'Project',        'Open topics from Ana (Dec 2025)',                       'Ana',    '2026-07-29', null],
+      ['Create',      'Project',        'Staffing organization (Sancho)',                        'Sancho', null,         null],
+      ['Review',      'Project',        'Financial training deck',                               'Mau',    null,         null],
+    ];
+    let sort = 0;
+    for (const [stage, card_type, title, owner, due, detail] of ACTIVE) {
+      await db.query(
+        `INSERT INTO projects (stage, card_type, title, owner, due_date, detail, sort_order)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [stage, card_type, title, owner, due, detail, sort++]
+      );
+    }
+    // Historical Done projects — example throughput for the report.
+    // card_type, title, owner, created, done
+    const DONE = [
+      ['Project',  'MERO dashboard v1 for foundations', 'Bruno',  '2026-06-05', '2026-06-24'],
+      ['Idea',     'Proposal template library',         'Ana',    '2026-06-12', '2026-07-01'],
+      ['Move Act', 'Circle leaders RACI',               'Edu',    '2026-06-22', '2026-07-08'],
+      ['Project',  'Onboarding checklist',              'Sofia',  '2026-07-02', '2026-07-16'],
+      ['Idea',     'AI use-case radar',                 'Victor', '2026-07-06', '2026-07-22'],
+    ];
+    for (const [card_type, title, owner, created, done] of DONE) {
+      await db.query(
+        `INSERT INTO projects (stage, card_type, title, owner, created_at, done_at, sort_order)
+         VALUES ('Done',$1,$2,$3,$4,$5,$6)`,
+        [card_type, title, owner, created, done, sort++]
+      );
+    }
+  }
 }
 
 module.exports = { seed };

@@ -128,13 +128,18 @@ export function stackedBar(container, { categories, series, format = (n) => n, t
   const palette = seriesColors();
   const coloured = series.map((s, i) => ({ ...s, color: s.color || palette[i % palette.length] }));
   const totals = categories.map((_, ci) => coloured.reduce((sum, s) => sum + (Number(s.values[ci]) || 0), 0));
-  const max = niceMax(Math.max(...totals, 0));
+  const rawMax = Math.max(...totals, 0);
+  // For small whole-number data (counts), snap the axis to integers so the tick
+  // labels don't round to duplicates like "2, 2". Otherwise use a nice max.
+  const allInteger = totals.every((t) => Number.isInteger(t));
+  const integerAxis = allInteger && rawMax > 0 && rawMax <= 6;
+  const max = integerAxis ? Math.max(1, Math.ceil(rawMax)) : niceMax(rawMax);
+  const TICKS = integerAxis ? max : 4;
   const yOf = (v) => pad.top + plotH - (v / max) * plotH;
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img' });
 
   // ── Gridlines + y axis ──
-  const TICKS = 4;
   for (let t = 0; t <= TICKS; t++) {
     const v = (max / TICKS) * t;
     const y = yOf(v);

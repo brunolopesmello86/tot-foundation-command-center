@@ -82,6 +82,7 @@ async function api(path, { method = 'GET', body } = {}) {
 const state = {
   pillars: [], drivers: [], metrics: [], initiatives: [], accounts: [], opportunities: [],
   projections: [], people: [], certifications: [], assets: [], cohorts: [],
+  tensions: [], projects: [],
 };
 
 const ui = {
@@ -90,7 +91,58 @@ const ui = {
   pipelineSector: 'All',
   navOpen: false,      // mobile drawer
   lastLoaded: null,
+  boardTab: { tensions: 'board', projects: 'board' },
 };
+
+/* ── Kanban board configuration — two boards, one engine ─────────────────── */
+
+const BOARDS = {
+  tensions: {
+    resource: 'tensions',
+    label: 'Tension',
+    kindKey: 'priority',
+    personKey: 'raised_by',
+    personLabel: 'Raised by',
+    doneKey: 'processed_at',
+    doneVerb: 'Synchronized',
+    columns: ['Creative Tensions', 'Prioritized', 'Clarifying', 'Action Proposal', 'Synchronized'],
+    groups: [
+      { label: 'Creative Tensions', span: 1 },
+      { label: 'In Processing', span: 3 },
+      { label: 'Synchronized', span: 1 },
+    ],
+    kinds: [
+      { v: 'Critical', color: 'var(--critical)' },
+      { v: 'High', color: 'var(--blue)' },
+      { v: 'Medium', color: 'var(--warning)' },
+      { v: 'Low', color: 'var(--muted)' },
+    ],
+  },
+  projects: {
+    resource: 'projects',
+    label: 'Project',
+    kindKey: 'card_type',
+    personKey: 'owner',
+    personLabel: 'Owner',
+    doneKey: 'done_at',
+    doneVerb: 'Done',
+    columns: ['Backlog', 'Prioritized', 'Create', 'Review', 'Done'],
+    groups: [
+      { label: 'Backlog', span: 1 },
+      { label: 'In Progress', span: 4 },
+    ],
+    kinds: [
+      { v: 'Project', color: 'var(--text)' },
+      { v: 'Move Act', color: 'var(--blue)' },
+      { v: 'Idea', color: 'var(--good)' },
+      { v: 'Pending Action', color: 'var(--warning)' },
+    ],
+  },
+};
+
+const kindColor = (cfg, v) => (cfg.kinds.find((k) => k.v === v) || {}).color || 'var(--muted)';
+const terminalStage = (cfg) => cfg.columns[cfg.columns.length - 1];
+const cardStage = (cfg, c) => c.stage || cfg.columns[0];
 
 /* ── Navigation — grouped, rendered into the sidebar ─────────────────────── */
 
@@ -100,6 +152,8 @@ const ICONS = {
   pipeline:   '<path d="M1.5 3h13l-5 5.6V14L6.5 12V8.6z"/>',
   people:     '<circle cx="6" cy="5" r="2.4"/><path d="M1.8 13.5c0-2.3 1.9-4.1 4.2-4.1s4.2 1.8 4.2 4.1"/><path d="M11 3.2a2.4 2.4 0 0 1 0 4.6M12.2 13.5c0-1.6-.5-2.6-1.2-3.4"/>',
   assets:     '<path d="M2 4.6 8 1.5l6 3.1v6.8L8 14.5l-6-3.1z"/><path d="M2 4.6 8 7.8l6-3.2M8 7.8v6.7"/>',
+  tensions:   '<path d="M2.5 2.5h4v11h-4zM9.5 2.5h4v7h-4z"/><path d="M4.5 6h0M11.5 5h0"/>',
+  projects:   '<rect x="1.8" y="2.5" width="3.2" height="11" rx="1"/><rect x="6.4" y="2.5" width="3.2" height="7" rx="1"/><rect x="11" y="2.5" width="3.2" height="9" rx="1"/>',
 };
 
 const NAV = [
@@ -113,6 +167,8 @@ const NAV = [
   { group: 'Organization', items: [
     { view: 'people',     label: 'People',     hint: 'Ladder, margin, certs' },
     { view: 'assets',     label: 'Assets & Certifications', hint: 'IP catalog & cohorts' },
+    { view: 'tensions',   label: 'Tensions Board', hint: 'Creative tensions kanban & flow metrics' },
+    { view: 'projects',   label: 'Internal Projects', hint: 'Initiatives kanban & flow metrics' },
   ]},
 ];
 
@@ -122,6 +178,8 @@ const VIEW_META = {
   people:     { title: 'People',     sub: 'Delivery ladder, capacity and the certification path' },
   assets:     { title: 'Assets & Certifications', sub: 'Reusable IP and the ICAgile cohort machine' },
   financials: { title: 'Financials', sub: 'Three-year sales projection and pipeline coverage' },
+  tensions:   { title: 'Tensions Board', sub: 'Creative tensions — the gap between what is and what could be better' },
+  projects:   { title: 'Internal Projects', sub: 'The team\'s own initiatives, tracked to done' },
 };
 
 function renderNav() {
@@ -215,6 +273,32 @@ const sum = (list, fn) => list.reduce((acc, item) => acc + num(fn(item)), 0);
 /* ── Entity definitions — drive both the editor form and the API calls ───── */
 
 const ENTITIES = {
+  tensions: {
+    label: 'Tension',
+    fields: [
+      { key: 'title', label: 'Tension', type: 'text', required: true, span: true },
+      { key: 'priority', label: 'Priority', type: 'select', options: () => BOARDS.tensions.kinds.map((k) => k.v) },
+      { key: 'stage', label: 'Column', type: 'select', options: () => BOARDS.tensions.columns },
+      { key: 'raised_by', label: 'Raised by', type: 'text' },
+      { key: 'role', label: 'Role that can address it', type: 'text' },
+      { key: 'sort_order', label: 'Sort', type: 'number' },
+      { key: 'detail', label: 'Root cause / notes', type: 'textarea', span: true },
+    ],
+    normalize: (body, record) => stampDone(BOARDS.tensions, body, record),
+  },
+  projects: {
+    label: 'Project',
+    fields: [
+      { key: 'title', label: 'Project', type: 'text', required: true, span: true },
+      { key: 'card_type', label: 'Type', type: 'select', options: () => BOARDS.projects.kinds.map((k) => k.v) },
+      { key: 'stage', label: 'Column', type: 'select', options: () => BOARDS.projects.columns },
+      { key: 'owner', label: 'Owner', type: 'text' },
+      { key: 'due_date', label: 'Due', type: 'date' },
+      { key: 'sort_order', label: 'Sort', type: 'number' },
+      { key: 'detail', label: 'Notes', type: 'textarea', span: true },
+    ],
+    normalize: (body, record) => stampDone(BOARDS.projects, body, record),
+  },
   drivers: {
     label: 'Driver',
     fields: [
@@ -364,7 +448,7 @@ function optionList(field) {
   return raw.map((o) => (typeof o === 'object' ? { v: o.v, l: o.l } : { v: o, l: o }));
 }
 
-function openEditor(entityKey, record = null) {
+function openEditor(entityKey, record = null, defaults = null) {
   const entity = ENTITIES[entityKey];
   editorContext = { entityKey, id: record ? record.id : null };
 
@@ -373,7 +457,8 @@ function openEditor(entityKey, record = null) {
 
   const container = document.getElementById('modal-fields');
   container.innerHTML = entity.fields.map((f) => {
-    const value = record ? record[f.key] : '';
+    const value = record ? record[f.key]
+      : (defaults && defaults[f.key] !== undefined ? defaults[f.key] : '');
     const cls = f.span ? 'field span-2' : 'field';
     let control;
 
@@ -417,6 +502,7 @@ async function submitEditor(event) {
     const raw = form.get(f.key);
     body[f.key] = raw === null ? '' : String(raw).trim();
   });
+  if (entity.normalize) entity.normalize(body, id ? byId(state[entityKey], id) : null);
 
   const saveButton = document.getElementById('modal-save');
   saveButton.disabled = true;
@@ -1135,6 +1221,203 @@ function drawFinancialCharts() {
   });
 }
 
+/* ── Kanban boards ───────────────────────────────────────────────────────── */
+
+// Keep the terminal-column timestamp in sync with the card's stage, whether the
+// change came from the editor or a drag. Uses the browser clock — fine for an
+// internal tool. Sending '' clears it (the server maps '' to NULL).
+function stampDone(cfg, body, record) {
+  if (!('stage' in body)) return;
+  if (body.stage === terminalStage(cfg)) {
+    body[cfg.doneKey] = (record && record[cfg.doneKey]) || new Date().toISOString();
+  } else {
+    body[cfg.doneKey] = '';
+  }
+}
+
+async function moveCard(resource, id, stage) {
+  const cfg = BOARDS[resource];
+  const rec = byId(state[resource], id);
+  if (!rec || cardStage(cfg, rec) === stage) return;
+  const body = { stage };
+  stampDone(cfg, body, rec);
+  try {
+    await api(`/${resource}/${id}`, { method: 'PUT', body });
+    await reload(resource);
+    toast(`Moved to ${stage}`);
+  } catch (err) {
+    toast(err.message, true);
+  }
+}
+
+function boardCards(cfg, stage) {
+  return state[cfg.resource]
+    .filter((c) => cardStage(cfg, c) === stage)
+    .sort((a, b) => num(a.sort_order) - num(b.sort_order) ||
+      (String(a.created_at) < String(b.created_at) ? -1 : 1));
+}
+
+function cardHtml(cfg, c) {
+  const person = c[cfg.personKey];
+  const kind = c[cfg.kindKey];
+  const done = c[cfg.doneKey];
+  return `<div class="kanban-card" draggable="true" data-resource="${cfg.resource}" data-id="${esc(c.id)}"
+      style="--card-accent:${kindColor(cfg, kind)}">
+    <div class="kc-top">
+      <span class="kc-title">${esc(c.title)}</span>
+      <button class="kc-del" data-act="del" data-entity="${cfg.resource}" data-id="${esc(c.id)}" aria-label="Delete card">×</button>
+    </div>
+    ${c.detail ? `<div class="kc-detail">${esc(c.detail)}</div>` : ''}
+    <div class="kc-foot">
+      ${kind ? `<span class="kc-kind">${esc(kind)}</span>` : ''}
+      ${person ? `<span class="kc-person">${esc(person)}</span>` : ''}
+      ${done ? `<span class="kc-date">${fmtDate(done)}</span>` : (c.due_date ? `<span class="kc-date">due ${fmtDate(c.due_date)}</span>` : '')}
+    </div>
+  </div>`;
+}
+
+function boardTabToggle(cfg) {
+  const tab = ui.boardTab[cfg.resource] || 'board';
+  return `<div class="seg">
+    <button data-act="boardtab" data-view="${cfg.resource}" data-tab="board" aria-pressed="${tab === 'board'}">Board</button>
+    <button data-act="boardtab" data-view="${cfg.resource}" data-tab="report" aria-pressed="${tab === 'report'}">Report</button>
+  </div>`;
+}
+
+function renderBoard(cfg) {
+  const tab = ui.boardTab[cfg.resource] || 'board';
+  if (tab === 'report') {
+    return `<div class="board-head"><div></div>${boardTabToggle(cfg)}</div>${renderBoardReport(cfg)}`;
+  }
+
+  const groupBand = cfg.groups.map((g) =>
+    `<div class="kc-group" style="grid-column:span ${g.span}">${esc(g.label)}</div>`).join('');
+
+  const cols = cfg.columns.map((stage) => {
+    const cards = boardCards(cfg, stage);
+    return `<div class="kanban-col" data-resource="${cfg.resource}" data-stage="${esc(stage)}">
+      <div class="kc-col-head"><span>${esc(stage)}</span><span class="kc-count">${cards.length}</span></div>
+      <div class="kc-list">${cards.map((c) => cardHtml(cfg, c)).join('')}</div>
+      <button class="kc-add" data-act="add" data-entity="${cfg.resource}" data-stage="${esc(stage)}">+ Add</button>
+    </div>`;
+  }).join('');
+
+  const n = cfg.columns.length;
+  return `<div class="board-head">
+      <div class="hint">Drag a card between columns, or click it to edit. Cards reaching <strong>${esc(cfg.doneVerb)}</strong> are timestamped for the flow report.</div>
+      <div class="row-gap">${boardTabToggle(cfg)}${addButton(cfg.resource, cfg.label)}</div>
+    </div>
+    <div class="kanban-scroll">
+      <div class="kanban-grid" style="--cols:${n}">
+        <div class="kanban-groups">${groupBand}</div>
+        <div class="kanban-cols">${cols}</div>
+      </div>
+    </div>`;
+}
+
+/* ── Board flow metrics ──────────────────────────────────────────────────── */
+
+function weekStart(value) {
+  const d = new Date(value);
+  const shift = (d.getDay() + 6) % 7; // Monday = 0
+  d.setDate(d.getDate() - shift);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function boardMetrics(cfg) {
+  const all = state[cfg.resource];
+  const done = all.filter((c) => c[cfg.doneKey]);
+  const open = all.filter((c) => cardStage(cfg, c) !== terminalStage(cfg));
+  const daysOf = (c) => Math.max(0, (new Date(c[cfg.doneKey]) - new Date(c.created_at)) / 86400000);
+  const avgDays = done.length ? done.reduce((sum, c) => sum + daysOf(c), 0) / done.length : null;
+  const people = [...new Set(all.map((c) => c[cfg.personKey]).filter(Boolean))];
+
+  // Throughput over the last 8 weeks.
+  const anchor = weekStart(new Date());
+  const weeks = [];
+  for (let i = 7; i >= 0; i--) {
+    const w = new Date(anchor);
+    w.setDate(w.getDate() - i * 7);
+    weeks.push(w);
+  }
+  const perWeek = weeks.map((w) =>
+    done.filter((c) => weekStart(c[cfg.doneKey]).getTime() === w.getTime()).length);
+
+  const byPerson = people
+    .map((p) => ({ name: p, value: all.filter((c) => c[cfg.personKey] === p).length }))
+    .sort((a, b) => b.value - a.value);
+
+  return { all, done, open, avgDays, people, weeks, perWeek, byPerson, daysOf };
+}
+
+function renderBoardReport(cfg) {
+  const m = boardMetrics(cfg);
+  if (!m.done.length) {
+    return `<div class="card"><p class="muted">No ${esc(cfg.doneVerb.toLowerCase())} cards yet — flow metrics appear once cards reach ${esc(cfg.doneVerb)}.</p></div>`;
+  }
+
+  const recent = m.done.slice()
+    .sort((a, b) => new Date(b[cfg.doneKey]) - new Date(a[cfg.doneKey]))
+    .slice(0, 10)
+    .map((c) => `<tr>
+      <td>${esc(c.title)}</td>
+      <td>${dash(c[cfg.personKey])}</td>
+      <td class="num">${fmtDate(c.created_at)}</td>
+      <td class="num">${fmtDate(c[cfg.doneKey])}</td>
+      <td class="right num">${Math.round(m.daysOf(c))}</td>
+    </tr>`);
+
+  return `
+    <div class="grid grid-4">
+      ${stat(`${esc(cfg.doneVerb)} — total`, String(m.done.length), 'cards completed', 'accent')}
+      ${stat('In flow now', String(m.open.length), 'not yet ' + esc(cfg.doneVerb.toLowerCase()), 'blue')}
+      ${stat('Avg days to process', m.avgDays === null ? '—' : Math.round(m.avgDays), 'created → ' + esc(cfg.doneVerb.toLowerCase()))}
+      ${stat(cfg.personLabel === 'Raised by' ? 'People raising' : 'Owners', String(m.people.length), 'distinct contributors')}
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>${esc(cfg.doneVerb)} per week</h2>
+        <div class="hint">Throughput over the last 8 weeks.</div></div>
+      <div id="board-week"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Cards by ${esc(cfg.personLabel.toLowerCase())}</h2>
+        <div class="hint">Who is bringing the work — all cards, open and ${esc(cfg.doneVerb.toLowerCase())}.</div></div>
+      <div id="board-person"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Recently ${esc(cfg.doneVerb.toLowerCase())}</h2>
+        <div class="hint">Cycle time in days, newest first.</div></div>
+      ${table(
+        ['Card', cfg.personLabel, 'Raised', cfg.doneVerb, { label: 'Days', right: true }],
+        recent, 'None yet.'
+      )}
+    </div>`;
+}
+
+function drawBoardReport(cfg) {
+  const m = boardMetrics(cfg);
+  const weekNode = document.getElementById('board-week');
+  if (weekNode) {
+    stackedBar(weekNode, {
+      categories: m.weeks.map((w) => w.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
+      series: [{ name: cfg.doneVerb, values: m.perWeek }],
+      format: (v) => String(Math.round(v)),
+    });
+  }
+  const personNode = document.getElementById('board-person');
+  if (personNode) {
+    hbars(personNode, { rows: m.byPerson, format: (v) => String(Math.round(v)), emptyText: 'No cards yet.' });
+  }
+}
+
+function drawBoard(cfg) {
+  if ((ui.boardTab[cfg.resource] || 'board') === 'report') drawBoardReport(cfg);
+}
+
 /* ── Router ──────────────────────────────────────────────────────────────── */
 
 const VIEWS = {
@@ -1143,6 +1426,8 @@ const VIEWS = {
   people:     { render: renderPeople,     draw: drawPeopleCharts },
   assets:     { render: renderAssets,     draw: drawAssetCharts },
   financials: { render: renderFinancials, draw: drawFinancialCharts },
+  tensions:   { render: () => renderBoard(BOARDS.tensions), draw: () => drawBoard(BOARDS.tensions) },
+  projects:   { render: () => renderBoard(BOARDS.projects), draw: () => drawBoard(BOARDS.projects) },
 };
 
 function renderView(name = ui.view) {
@@ -1265,16 +1550,64 @@ document.getElementById('btn-refresh').addEventListener('click', async () => {
 
 // One delegated handler covers every add / edit / delete / filter control.
 document.getElementById('views').addEventListener('click', (event) => {
+  // A click on a kanban card body (not a button) opens its editor.
+  const card = event.target.closest('.kanban-card');
+  if (card && !event.target.closest('button')) {
+    openEditor(card.dataset.resource, byId(state[card.dataset.resource], card.dataset.id));
+    return;
+  }
+
   const btn = event.target.closest('button[data-act]');
   if (!btn) return;
-  const { act, entity, id, scenario, sector } = btn.dataset;
+  const { act, entity, id, scenario, sector, stage, view, tab } = btn.dataset;
 
-  if (act === 'add') openEditor(entity);
+  if (act === 'add') openEditor(entity, null, stage ? { stage } : null);
   else if (act === 'edit') openEditor(entity, byId(state[entity], id));
   else if (act === 'del') deleteRecord(entity, id);
   else if (act === 'scenario') { ui.scenario = scenario; renderView('financials'); }
   else if (act === 'sector') { ui.pipelineSector = sector; renderView('pipeline'); }
+  else if (act === 'boardtab') { ui.boardTab[view] = tab; renderView(view); }
 });
+
+// ── Drag and drop between kanban columns ──
+(() => {
+  const views = document.getElementById('views');
+  let drag = null;
+  const clearDrop = () => document.querySelectorAll('.kanban-col.drop').forEach((c) => c.classList.remove('drop'));
+
+  views.addEventListener('dragstart', (e) => {
+    const card = e.target.closest('.kanban-card');
+    if (!card) return;
+    drag = { id: card.dataset.id, resource: card.dataset.resource };
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    // Firefox needs data set for the drag to start.
+    try { e.dataTransfer.setData('text/plain', card.dataset.id); } catch (_) {}
+  });
+  views.addEventListener('dragend', (e) => {
+    const card = e.target.closest('.kanban-card');
+    if (card) card.classList.remove('dragging');
+    clearDrop();
+    drag = null;
+  });
+  views.addEventListener('dragover', (e) => {
+    const col = e.target.closest('.kanban-col');
+    if (!drag || !col || col.dataset.resource !== drag.resource) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (!col.classList.contains('drop')) { clearDrop(); col.classList.add('drop'); }
+  });
+  views.addEventListener('drop', (e) => {
+    const col = e.target.closest('.kanban-col');
+    if (!drag || !col || col.dataset.resource !== drag.resource) return;
+    e.preventDefault();
+    const { id, resource } = drag;
+    const stage = col.dataset.stage;
+    drag = null;
+    clearDrop();
+    moveCard(resource, id, stage);
+  });
+})();
 
 document.getElementById('modal-form').addEventListener('submit', submitEditor);
 document.getElementById('modal-cancel').addEventListener('click', closeEditor);
