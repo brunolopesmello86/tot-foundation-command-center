@@ -9,7 +9,8 @@
     "migrate": "node server/migrate.js",
     "seed": "node server/migrate.js --seed",
     "passcode": "node server/passcode.js",
-    "import:pipeline": "node server/import-ds-pipeline.js"
+    "import:pipeline": "node server/import-ds-pipeline.js",
+    "import:accountplan": "node server/import-account-plan.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
