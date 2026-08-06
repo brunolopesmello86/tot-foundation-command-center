@@ -150,6 +150,7 @@ const ICONS = {
   strategy:   '<path d="M8 1.5 9.9 5.6l4.5.5-3.3 3 .9 4.4L8 11.4 4 13.5l.9-4.4-3.3-3 4.5-.5z"/>',
   financials: '<path d="M2 13.5h12M4 11V6.5M7.3 11V3M10.7 11V7.8M14 11V5"/>',
   pipeline:   '<path d="M1.5 3h13l-5 5.6V14L6.5 12V8.6z"/>',
+  leads:      '<path d="M2 12.5 6 8l3 2.5L14 4"/><circle cx="6" cy="8" r="1"/><circle cx="9" cy="10.5" r="1"/>',
   people:     '<circle cx="6" cy="5" r="2.4"/><path d="M1.8 13.5c0-2.3 1.9-4.1 4.2-4.1s4.2 1.8 4.2 4.1"/><path d="M11 3.2a2.4 2.4 0 0 1 0 4.6M12.2 13.5c0-1.6-.5-2.6-1.2-3.4"/>',
   assets:     '<path d="M2 4.6 8 1.5l6 3.1v6.8L8 14.5l-6-3.1z"/><path d="M2 4.6 8 7.8l6-3.2M8 7.8v6.7"/>',
   tensions:   '<path d="M2.5 2.5h4v11h-4zM9.5 2.5h4v7h-4z"/><path d="M4.5 6h0M11.5 5h0"/>',
@@ -162,7 +163,8 @@ const NAV = [
     { view: 'financials', label: 'Financials', hint: '3-year projection' },
   ]},
   { group: 'Commercial',   items: [
-    { view: 'pipeline',   label: 'Pipeline',   hint: 'Accounts & opportunities' },
+    { view: 'pipeline',   label: 'Pipeline',   hint: 'Active accounts & opportunities' },
+    { view: 'leads',      label: 'Leads',      hint: 'Earlier / unqualified opportunities' },
   ]},
   { group: 'Organization', items: [
     { view: 'people',     label: 'People',     hint: 'Ladder, margin, certs' },
@@ -174,7 +176,8 @@ const NAV = [
 
 const VIEW_META = {
   strategy:   { title: 'Strategy',   sub: 'Playing to Win — one goal, three drivers, four pillars' },
-  pipeline:   { title: 'Pipeline',   sub: 'Commercial pipeline by sector, stage and margin tier' },
+  pipeline:   { title: 'Pipeline',   sub: 'Active commercial pipeline by sector, stage and margin tier' },
+  leads:      { title: 'Leads',      sub: 'Earlier and unqualified opportunities — promote one to move it into the pipeline' },
   people:     { title: 'People',     sub: 'Delivery ladder, capacity and the certification path' },
   assets:     { title: 'Assets & Certifications', sub: 'Reusable IP and the ICAgile cohort machine' },
   financials: { title: 'Financials', sub: 'Three-year sales projection and pipeline coverage' },
@@ -361,6 +364,7 @@ const ENTITIES = {
       { key: 'name', label: 'Opportunity', type: 'text', required: true, span: true },
       { key: 'account_id', label: 'Account', type: 'select', required: true, options: () => state.accounts.map((a) => ({ v: a.id, l: a.name })) },
       { key: 'stream', label: 'Revenue stream', type: 'select', options: () => STREAMS.map((s) => ({ v: s, l: STREAM_SHORT[s] })) },
+      { key: 'record_type', label: 'List', type: 'select', options: () => ['Pipeline', 'Lead'] },
       { key: 'stage', label: 'Stage', type: 'select', options: () => STAGES },
       { key: 'margin_tier', label: 'Margin tier', type: 'select', options: () => MARGIN_TIERS },
       { key: 'value_k', label: 'Value ($K)', type: 'number', step: 'any' },
@@ -688,9 +692,13 @@ function renderStrategy() {
 
 /* ── View 02 · Pipeline ──────────────────────────────────────────────────── */
 
+const pipelineOpps = () => state.opportunities.filter((o) => o.record_type !== 'Lead');
+const leadOpps = () => state.opportunities.filter((o) => o.record_type === 'Lead');
+
 function pipelineRows() {
-  if (ui.pipelineSector === 'All') return state.opportunities;
-  return state.opportunities.filter((o) => {
+  const base = pipelineOpps();
+  if (ui.pipelineSector === 'All') return base;
+  return base.filter((o) => {
     const account = byId(state.accounts, o.account_id);
     return account && account.sector === ui.pipelineSector;
   });
@@ -707,7 +715,7 @@ function renderPipeline() {
   const avgTier = open.length ? sum(open, (o) => o.margin_tier) / open.length : 0;
 
   const accountRows = state.accounts.map((a) => {
-    const accountOpps = state.opportunities.filter((o) => String(o.account_id) === String(a.id));
+    const accountOpps = pipelineOpps().filter((o) => String(o.account_id) === String(a.id));
     const value = sum(accountOpps.filter((o) => o.stage !== 'Lost'), (o) => o.value_k);
     return `<tr>
       <td>${esc(a.name)}</td>
@@ -732,8 +740,13 @@ function renderPipeline() {
       <td class="right num">${moneyK(o.value_k)}</td>
       <td class="right num">${num(o.probability)}%</td>
       <td class="right num">${moneyK(num(o.value_k) * num(o.probability) / 100)}</td>
+      <td>${dash(o.owner)}</td>
       <td class="num">${o.close_date ? fmtDate(o.close_date) : '<span class="muted">—</span>'}</td>
-      ${rowActions('opportunities', o.id)}
+      <td class="actions">
+        <button class="btn sm" data-act="tolead" data-id="${esc(o.id)}" title="Move to Leads">→ Lead</button>
+        <button class="btn sm" data-act="edit" data-entity="opportunities" data-id="${esc(o.id)}">Edit</button>
+        <button class="btn sm danger" data-act="del" data-entity="opportunities" data-id="${esc(o.id)}">×</button>
+      </td>
     </tr>`;
   });
 
@@ -779,9 +792,9 @@ function renderPipeline() {
       </div>
       ${table(
         ['Opportunity', 'Account', 'Stream', 'Stage', 'Tier', { label: 'Value', right: true }, { label: 'Prob.', right: true },
-         { label: 'Weighted', right: true }, 'Close', { label: 'Actions', actions: true }],
+         { label: 'Weighted', right: true }, 'Owner', 'Close', { label: 'Actions', actions: true }],
         oppRows,
-        state.accounts.length ? 'No opportunities in this filter.' : 'Add an account first, then log opportunities against it.'
+        state.accounts.length ? 'No active opportunities in this filter — check the Leads view.' : 'Add an account first, then log opportunities against it.'
       )}
     </div>
 
@@ -1108,9 +1121,9 @@ function renderFinancials() {
   // Pipeline coverage against the first projected year.
   const firstYear = years[0];
   const yearTarget = totals[0] || 0;
-  const won = sum(state.opportunities.filter((o) => o.stage === 'Won'), (o) => o.value_k);
+  const won = sum(pipelineOpps().filter((o) => o.stage === 'Won'), (o) => o.value_k);
   const weighted = sum(
-    state.opportunities.filter((o) => OPEN_STAGES.includes(o.stage)),
+    pipelineOpps().filter((o) => OPEN_STAGES.includes(o.stage)),
     (o) => num(o.value_k) * num(o.probability) / 100
   );
   const coverage = yearTarget > 0 ? ((won + weighted) / yearTarget) * 100 : 0;
@@ -1232,6 +1245,16 @@ function stampDone(cfg, body, record) {
     body[cfg.doneKey] = (record && record[cfg.doneKey]) || new Date().toISOString();
   } else {
     body[cfg.doneKey] = '';
+  }
+}
+
+async function setRecordType(id, recordType) {
+  try {
+    await api(`/opportunities/${id}`, { method: 'PUT', body: { record_type: recordType } });
+    await reload('opportunities');
+    toast(recordType === 'Lead' ? 'Moved to Leads' : 'Moved to Pipeline');
+  } catch (err) {
+    toast(err.message, true);
   }
 }
 
@@ -1418,11 +1441,94 @@ function drawBoard(cfg) {
   if ((ui.boardTab[cfg.resource] || 'board') === 'report') drawBoardReport(cfg);
 }
 
+/* ── View · Leads ────────────────────────────────────────────────────────── */
+
+function renderLeads() {
+  const leads = leadOpps();
+  const value = sum(leads, (o) => o.value_k);
+  const owners = [...new Set(leads.map((o) => o.owner).filter(Boolean))];
+
+  const bySector = SECTORS.map((sector) => ({
+    name: sector,
+    value: leads.filter((o) => {
+      const a = byId(state.accounts, o.account_id);
+      return a && a.sector === sector;
+    }).length,
+  })).filter((r) => r.value);
+
+  const rows = leads
+    .slice()
+    .sort((a, b) => num(b.value_k) - num(a.value_k) || String(a.name).localeCompare(String(b.name)))
+    .map((o) => {
+      const account = byId(state.accounts, o.account_id);
+      return `<tr>
+        <td>${esc(o.name)}${o.notes ? `<div class="muted" style="font-size:11px;margin-top:3px">${esc(o.notes)}</div>` : ''}</td>
+        <td>${account ? esc(account.name) : '<span class="muted">unassigned</span>'}</td>
+        <td>${account ? dash(account.sector) : '<span class="muted">—</span>'}</td>
+        <td>${dash(o.owner)}</td>
+        <td>${statusChip(o.stage)}</td>
+        <td class="right num">${num(o.value_k) ? moneyK(o.value_k) : '<span class="muted">—</span>'}</td>
+        <td class="actions">
+          <button class="btn sm primary" data-act="topipeline" data-id="${esc(o.id)}" title="Move into the active pipeline">→ Pipeline</button>
+          <button class="btn sm" data-act="edit" data-entity="opportunities" data-id="${esc(o.id)}">Edit</button>
+          <button class="btn sm danger" data-act="del" data-entity="opportunities" data-id="${esc(o.id)}">×</button>
+        </td>
+      </tr>`;
+    });
+
+  return `
+    <div class="grid grid-4">
+      ${stat('Leads', String(leads.length), 'earlier / unqualified', 'blue')}
+      ${stat('Indicative value', moneyKCompact(value), 'across all leads', 'accent')}
+      ${stat('Owners', String(owners.length), 'covering these leads')}
+      ${stat('Sectors', String(bySector.length), 'with at least one lead')}
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Leads by sector</h2>
+        <div class="hint">Count of leads per sector.</div></div>
+      <div id="chart-leads-sector"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>All leads</h2>
+        <div class="row-gap">
+          <div class="hint">Promote a lead to move it into the active pipeline. It keeps its stage, value and owner.</div>
+          ${addButton('opportunities', 'Lead')}
+        </div>
+      </div>
+      ${table(
+        ['Lead', 'Account', 'Sector', 'Owner', 'Stage', { label: 'Value', right: true }, { label: 'Actions', actions: true }],
+        rows,
+        'No leads — everything is in the active pipeline.'
+      )}
+    </div>`;
+}
+
+function drawLeadsChart() {
+  const node = document.getElementById('chart-leads-sector');
+  if (!node) return;
+  const leads = leadOpps();
+  hbars(node, {
+    rows: SECTORS.map((sector) => ({
+      name: sector,
+      value: leads.filter((o) => {
+        const a = byId(state.accounts, o.account_id);
+        return a && a.sector === sector;
+      }).length,
+    })),
+    format: (v) => String(Math.round(v)),
+    emptyText: 'No leads yet.',
+  });
+}
+
 /* ── Router ──────────────────────────────────────────────────────────────── */
 
 const VIEWS = {
   strategy:   { render: renderStrategy,   draw: null },
   pipeline:   { render: renderPipeline,   draw: drawPipelineCharts },
+  leads:      { render: renderLeads,      draw: drawLeadsChart },
   people:     { render: renderPeople,     draw: drawPeopleCharts },
   assets:     { render: renderAssets,     draw: drawAssetCharts },
   financials: { render: renderFinancials, draw: drawFinancialCharts },
@@ -1561,9 +1667,15 @@ document.getElementById('views').addEventListener('click', (event) => {
   if (!btn) return;
   const { act, entity, id, scenario, sector, stage, view, tab } = btn.dataset;
 
-  if (act === 'add') openEditor(entity, null, stage ? { stage } : null);
+  if (act === 'add') {
+    const defaults = stage ? { stage } : null;
+    // The + button on the Leads view creates a Lead, not a pipeline opportunity.
+    openEditor(entity, null, ui.view === 'leads' && entity === 'opportunities' ? { ...(defaults || {}), record_type: 'Lead' } : defaults);
+  }
   else if (act === 'edit') openEditor(entity, byId(state[entity], id));
   else if (act === 'del') deleteRecord(entity, id);
+  else if (act === 'topipeline') setRecordType(id, 'Pipeline');
+  else if (act === 'tolead') setRecordType(id, 'Lead');
   else if (act === 'scenario') { ui.scenario = scenario; renderView('financials'); }
   else if (act === 'sector') { ui.pipelineSector = sector; renderView('pipeline'); }
   else if (act === 'boardtab') { ui.boardTab[view] = tab; renderView(view); }

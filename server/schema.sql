@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS opportunities (
     stream      TEXT,               -- Core consulting | Nexus Model | ICAgile certifications | AI experiences
     stage       TEXT NOT NULL DEFAULT 'Qualify', -- Qualify | Proposal | Negotiation | Won | Lost
     margin_tier INTEGER DEFAULT 40, -- 30 Land | 40 Standard | 50 Differentiated
+    record_type TEXT NOT NULL DEFAULT 'Pipeline', -- Pipeline | Lead
     value_k     NUMERIC DEFAULT 0,  -- US$ thousands
     probability INTEGER DEFAULT 50, -- 0–100
     close_date  DATE,
@@ -101,8 +102,12 @@ CREATE TABLE IF NOT EXISTS opportunities (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Added after launch: existing databases pick this up on the next bootstrap.
+ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS record_type TEXT NOT NULL DEFAULT 'Pipeline';
+
 CREATE INDEX IF NOT EXISTS idx_opportunities_account ON opportunities(account_id);
 CREATE INDEX IF NOT EXISTS idx_opportunities_stage ON opportunities(stage);
+CREATE INDEX IF NOT EXISTS idx_opportunities_record_type ON opportunities(record_type);
 
 -- The 3-year sales projection model (Conservative / Base / Aggressive).
 CREATE TABLE IF NOT EXISTS projections (

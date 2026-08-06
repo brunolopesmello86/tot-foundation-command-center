@@ -152,8 +152,8 @@ const RESOURCES = {
   },
   opportunities: {
     table: 'opportunities',
-    columns: ['account_id', 'name', 'stream', 'stage', 'margin_tier', 'value_k', 'probability', 'close_date', 'owner', 'notes'],
-    defaulted: ['stage', 'margin_tier', 'value_k', 'probability'],
+    columns: ['account_id', 'name', 'stream', 'stage', 'margin_tier', 'record_type', 'value_k', 'probability', 'close_date', 'owner', 'notes'],
+    defaulted: ['stage', 'margin_tier', 'record_type', 'value_k', 'probability'],
     order: 'close_date ASC NULLS LAST, name ASC',
   },
   projections: {

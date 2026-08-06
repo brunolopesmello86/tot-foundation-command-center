@@ -10,7 +10,8 @@
     "seed": "node server/migrate.js --seed",
     "passcode": "node server/passcode.js",
     "import:pipeline": "node server/import-ds-pipeline.js",
-    "import:accountplan": "node server/import-account-plan.js"
+    "import:accountplan": "node server/import-account-plan.js",
+    "classify:leads": "node server/classify-leads.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

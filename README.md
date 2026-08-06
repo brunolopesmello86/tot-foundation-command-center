@@ -11,10 +11,15 @@ Same architecture as the Nexus board: **static frontend + Express API on Vercel 
 
 Navigation is a left rail grouped into **Direction**, **Commercial** and **Organization**.
 
+Opportunities carry a `record_type` — `Pipeline` (active) or `Lead` (earlier / unqualified).
+The Pipeline and Leads views are the same underlying table filtered by it; the `→ Pipeline` /
+`→ Lead` buttons (and the editor's *List* field) move a record between them.
+
 | Section | Covers |
 |---|---|
 | **Strategy** | North-star goal, three drivers, four pillars, the metrics scoreboard (actual vs target), and initiatives tracked per pillar with owner, status, health and progress. |
-| **Pipeline** | Accounts and opportunities by sector, stage and margin tier (30 Land / 40 Standard / 50+ Differentiated). Open, weighted and closed-won roll-ups, filterable by sector. |
+| **Pipeline** | Active accounts and opportunities by sector, stage and margin tier (30 Land / 40 Standard / 50+ Differentiated). Open, weighted and closed-won roll-ups, filterable by sector. Owner shown per opportunity. |
+| **Leads** | Earlier / unqualified opportunities, kept out of the active pipeline. One click promotes a lead into the Pipeline (keeping its stage, value and owner); the reverse demotes. |
 | **People** | Delivery ladder with base cost, bill rate and computed margin against each profile's target band; Build/Borrow/Buy model, utilization, and the AI + ICAgile/SAFe certification tracker. |
 | **Assets & Certifications** | Asset/IP catalog with reuse and revenue, plus the ICAgile cohort machine — fill rate, revenue and gross margin per cohort. |
 | **Tensions Board** | Creative-tensions kanban (O2 system): intake → In Processing → Synchronized, cards by priority, drag to move. A Report tab shows throughput per week, people raising tensions, and average days to process. |
